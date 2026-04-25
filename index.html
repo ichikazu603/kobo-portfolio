@@ -1,0 +1,1219 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>職人の業務改善 — Kazuki Ichikawa / Studio Kōbō</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho+B1:wght@400;500;700;800&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@300;400;500&family=Noto+Serif+JP:wght@300;400;500;700&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --paper: #f4efe3;
+    --paper-2: #ece6d5;
+    --ink: #141210;
+    --ink-2: #2a2620;
+    --mute: #6b6358;
+    --rule: #1d1a16;
+    --vermillion: #c8361e;
+    --gold: #a68b5b;
+    --cream: #faf6ea;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: "Noto Serif JP", "Shippori Mincho B1", serif;
+    font-weight: 400;
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: "";
+    position: fixed; inset: 0;
+    background-image:
+      radial-gradient(circle at 20% 30%, rgba(20,18,16,0.04) 0, transparent 50%),
+      radial-gradient(circle at 80% 70%, rgba(200,54,30,0.025) 0, transparent 45%);
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  body::after {
+    content: "";
+    position: fixed; inset: 0;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/><feColorMatrix values='0 0 0 0 0.08 0 0 0 0 0.07 0 0 0 0 0.06 0 0 0 0.35 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+    opacity: 0.25;
+    mix-blend-mode: multiply;
+    pointer-events: none;
+    z-index: 2;
+  }
+
+  main { position: relative; z-index: 3; }
+
+  /* ─── NAV ───────────────────────────────────────── */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0;
+    display: flex; justify-content: space-between; align-items: baseline;
+    padding: 22px 40px;
+    background: rgba(244,239,227,0.82);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(20,18,16,0.08);
+    z-index: 50;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+  }
+  nav .brand {
+    font-family: "Instrument Serif", serif;
+    font-size: 22px;
+    letter-spacing: 0;
+    text-transform: none;
+    font-style: italic;
+    color: var(--ink);
+  }
+  nav .brand .kanji {
+    font-family: "Shippori Mincho B1", serif;
+    font-style: normal;
+    font-weight: 700;
+    margin-right: 6px;
+    color: var(--vermillion);
+  }
+  nav ul { list-style: none; display: flex; gap: 30px; }
+  nav ul a { color: var(--ink-2); text-decoration: none; position: relative; }
+  nav ul a:hover { color: var(--vermillion); }
+  nav ul a::after {
+    content: ""; position: absolute; left: 0; bottom: -4px;
+    width: 0; height: 1px; background: var(--vermillion); transition: width .4s ease;
+  }
+  nav ul a:hover::after { width: 100%; }
+  nav .cta {
+    border: 1px solid var(--ink); padding: 8px 16px; border-radius: 999px;
+    color: var(--ink); text-decoration: none; transition: all .3s;
+  }
+  nav .cta:hover { background: var(--ink); color: var(--paper); }
+
+  /* ─── HERO ──────────────────────────────────────── */
+  .hero {
+    position: relative;
+    min-height: 100vh;
+    padding: 140px 40px 80px;
+    display: grid;
+    grid-template-columns: 80px 1fr 340px;
+    gap: 40px;
+    align-items: end;
+  }
+
+  .side-index {
+    writing-mode: vertical-rl;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--mute);
+    border-left: 1px solid rgba(20,18,16,0.2);
+    padding-left: 16px;
+    align-self: stretch;
+    display: flex; flex-direction: column; justify-content: space-between;
+  }
+  .side-index span:last-child { color: var(--vermillion); }
+
+  .hero-copy { max-width: 880px; }
+  .eyebrow {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11px;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    color: var(--mute);
+    margin-bottom: 32px;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .eyebrow::before {
+    content: ""; width: 36px; height: 1px; background: var(--vermillion);
+  }
+  .eyebrow .est { color: var(--ink); font-weight: 500; }
+
+  h1 {
+    font-family: "Shippori Mincho B1", serif;
+    font-weight: 500;
+    font-size: clamp(54px, 8.2vw, 132px);
+    line-height: 0.92;
+    letter-spacing: -0.02em;
+    color: var(--ink);
+    margin-bottom: 42px;
+  }
+  h1 .en {
+    font-family: "Instrument Serif", serif;
+    font-style: italic;
+    font-weight: 400;
+    letter-spacing: -0.01em;
+    display: block;
+    font-size: 0.48em;
+    color: var(--mute);
+    margin-top: 18px;
+    line-height: 1.1;
+  }
+  h1 .stamp {
+    display: inline-block;
+    color: var(--vermillion);
+    font-weight: 800;
+    position: relative;
+  }
+  h1 .stamp::after {
+    content: "";
+    position: absolute;
+    inset: -6px -4px;
+    border: 2px solid var(--vermillion);
+    border-radius: 4px;
+    transform: rotate(-2deg);
+    pointer-events: none;
+  }
+
+  .hero-lead {
+    font-family: "Noto Serif JP", serif;
+    font-size: 17px;
+    line-height: 1.9;
+    color: var(--ink-2);
+    max-width: 560px;
+    margin-bottom: 40px;
+  }
+  .hero-lead strong {
+    font-weight: 500;
+    border-bottom: 1px solid var(--gold);
+    padding-bottom: 1px;
+  }
+
+  .hero-ctas { display: flex; gap: 20px; align-items: center; flex-wrap: wrap; }
+  .btn-primary {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 18px 34px;
+    border: none;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 12px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    text-decoration: none;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    transition: all .4s;
+    display: inline-flex; align-items: center; gap: 14px;
+  }
+  .btn-primary:hover { background: var(--vermillion); letter-spacing: 0.28em; }
+  .btn-primary::after {
+    content: "→"; transition: transform .3s;
+  }
+  .btn-primary:hover::after { transform: translateX(6px); }
+  .btn-ghost {
+    color: var(--ink); text-decoration: none;
+    font-family: "Instrument Serif", serif; font-style: italic;
+    font-size: 18px; border-bottom: 1px solid var(--ink);
+    padding-bottom: 3px;
+  }
+
+  /* HERO RIGHT PANEL */
+  .hero-card {
+    background: var(--cream);
+    border: 1px solid rgba(20,18,16,0.12);
+    padding: 36px 32px 32px;
+    position: relative;
+    box-shadow: 20px 20px 0 -16px var(--vermillion), 22px 22px 0 -18px var(--ink);
+    transform: rotate(0.6deg);
+  }
+  .hero-card::before {
+    content: "標本 No. 07 / SPECIMEN";
+    position: absolute; top: -10px; left: 20px;
+    background: var(--paper); padding: 0 10px;
+    font-family: "JetBrains Mono", monospace; font-size: 10px;
+    letter-spacing: 0.2em; color: var(--mute);
+  }
+  .spec-title {
+    font-family: "Shippori Mincho B1", serif;
+    font-size: 22px; font-weight: 700;
+    margin-bottom: 6px; line-height: 1.3;
+  }
+  .spec-sub {
+    font-family: "Instrument Serif", serif; font-style: italic;
+    font-size: 14px; color: var(--mute); margin-bottom: 20px;
+  }
+  .spec-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 18px 12px;
+    padding: 18px 0; border-top: 1px solid rgba(20,18,16,0.12); border-bottom: 1px solid rgba(20,18,16,0.12);
+  }
+  .spec-grid .k {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 9px; letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--mute); margin-bottom: 4px;
+  }
+  .spec-grid .v {
+    font-family: "Instrument Serif", serif; font-size: 28px; line-height: 1;
+    color: var(--ink);
+  }
+  .spec-grid .v.accent { color: var(--vermillion); }
+  .spec-grid .unit {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 10px; color: var(--mute); margin-left: 4px;
+  }
+  .spec-foot {
+    padding-top: 18px; display: flex; justify-content: space-between; align-items: center;
+    font-family: "JetBrains Mono", monospace; font-size: 10px; letter-spacing: 0.15em;
+    color: var(--mute); text-transform: uppercase;
+  }
+  .seal {
+    width: 42px; height: 42px; border: 1.5px solid var(--vermillion);
+    color: var(--vermillion); display: flex; align-items: center; justify-content: center;
+    font-family: "Shippori Mincho B1", serif; font-weight: 700; font-size: 18px;
+    border-radius: 2px; transform: rotate(-4deg);
+  }
+
+  /* ─── MARQUEE ──────────────────────────── */
+  .marquee {
+    border-top: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+    padding: 18px 0;
+    overflow: hidden;
+    background: var(--ink);
+    color: var(--paper);
+    position: relative;
+  }
+  .marquee-track {
+    display: flex; gap: 60px; white-space: nowrap;
+    animation: marquee 40s linear infinite;
+    font-family: "Shippori Mincho B1", serif;
+    font-size: 24px;
+  }
+  .marquee-track span {
+    display: inline-flex; align-items: center; gap: 60px;
+  }
+  .marquee-track span::after {
+    content: "✦"; color: var(--vermillion); font-size: 14px;
+  }
+  @keyframes marquee {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+
+  /* ─── SECTION FRAME ─────────────────────── */
+  section { position: relative; padding: 120px 40px; }
+  .section-head {
+    display: grid; grid-template-columns: 80px 1fr; gap: 40px;
+    margin-bottom: 80px; align-items: end;
+    border-bottom: 1px solid var(--rule);
+    padding-bottom: 30px;
+  }
+  .section-num {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11px; letter-spacing: 0.3em; text-transform: uppercase;
+    color: var(--vermillion);
+  }
+  .section-num b { color: var(--ink); font-weight: 500; display: block; margin-top: 4px; font-size: 44px; font-family: "Instrument Serif", serif; letter-spacing: 0; }
+  .section-title {
+    font-family: "Shippori Mincho B1", serif;
+    font-size: clamp(36px, 5vw, 72px);
+    line-height: 1;
+    letter-spacing: -0.01em;
+    font-weight: 500;
+  }
+  .section-title em {
+    font-family: "Instrument Serif", serif;
+    font-style: italic; font-weight: 400;
+    color: var(--mute);
+    font-size: 0.55em;
+    display: block; margin-top: 12px;
+  }
+
+  /* ─── SERVICES ──────────────────────────── */
+  .services {
+    display: grid; grid-template-columns: 80px 1fr;
+    gap: 40px;
+  }
+  .services-inner { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0; border-top: 1px solid rgba(20,18,16,0.18); }
+  .svc {
+    padding: 38px 28px 36px;
+    border-bottom: 1px solid rgba(20,18,16,0.18);
+    border-right: 1px solid rgba(20,18,16,0.18);
+    position: relative;
+    transition: background .5s;
+  }
+  .svc:last-child { border-right: none; }
+  .svc:hover { background: var(--cream); }
+  .svc-num {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 10px; letter-spacing: 0.22em; color: var(--mute);
+    margin-bottom: 24px;
+  }
+  .svc-mark {
+    font-family: "Shippori Mincho B1", serif;
+    font-size: 42px; font-weight: 700;
+    color: var(--vermillion);
+    display: inline-block;
+    margin-bottom: 20px;
+    line-height: 1;
+  }
+  .svc h3 {
+    font-family: "Shippori Mincho B1", serif;
+    font-size: 28px; font-weight: 500; line-height: 1.25;
+    margin-bottom: 8px;
+  }
+  .svc h3 .en {
+    display: block;
+    font-family: "Instrument Serif", serif; font-style: italic;
+    font-size: 15px; color: var(--mute); margin-top: 6px; font-weight: 400;
+  }
+  .svc p {
+    font-size: 14.5px; line-height: 1.9; color: var(--ink-2);
+    margin-top: 22px; max-width: 340px;
+  }
+  .svc .tools {
+    margin-top: 24px; display: flex; flex-wrap: wrap; gap: 6px;
+  }
+  .svc .tools span {
+    font-family: "JetBrains Mono", monospace; font-size: 10px;
+    letter-spacing: 0.08em;
+    padding: 4px 10px; border: 1px solid rgba(20,18,16,0.25);
+    border-radius: 999px; color: var(--ink-2);
+  }
+
+  /* ─── WORKS / CASE STUDIES ─────────────── */
+  .works { background: var(--paper-2); border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); }
+  .works-grid {
+    display: grid; grid-template-columns: repeat(12, 1fr); gap: 28px;
+  }
+  .case {
+    background: var(--cream);
+    border: 1px solid rgba(20,18,16,0.15);
+    padding: 36px 32px 32px;
+    position: relative;
+    display: flex; flex-direction: column;
+    transition: transform .5s cubic-bezier(.2,.7,.2,1), box-shadow .5s;
+  }
+  .case:hover { transform: translateY(-6px); box-shadow: 0 24px 40px -24px rgba(20,18,16,0.4); }
+  .case.c1 { grid-column: 1 / 8; min-height: 420px; }
+  .case.c2 { grid-column: 8 / 13; min-height: 420px; }
+  .case.c3 { grid-column: 1 / 5; min-height: 360px; }
+  .case.c4 { grid-column: 5 / 10; min-height: 360px; }
+  .case.c5 { grid-column: 10 / 13; min-height: 360px; background: var(--ink); color: var(--paper); }
+  .case.c5 .case-kind, .case.c5 .case-meta span { color: rgba(244,239,227,0.55) !important; }
+  .case.c5 .case-kpi .n { color: var(--paper); }
+  .case.c5 .case-kpi .n.accent { color: #ff6b52; }
+  .case.c5 h4 { color: var(--paper); }
+
+  .case-kind {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase;
+    color: var(--mute);
+    display: flex; justify-content: space-between;
+    margin-bottom: 20px;
+  }
+  .case-kind .tag {
+    color: var(--vermillion);
+  }
+  .case h4 {
+    font-family: "Shippori Mincho B1", serif;
+    font-weight: 500;
+    font-size: 26px; line-height: 1.35;
+    margin-bottom: 10px;
+  }
+  .case.c1 h4 { font-size: 34px; }
+  .case-desc {
+    font-size: 14px; color: var(--ink-2); line-height: 1.85;
+    margin-bottom: 30px; max-width: 440px;
+  }
+  .case-kpi {
+    margin-top: auto;
+    display: flex; gap: 28px; flex-wrap: wrap;
+    padding-top: 22px; border-top: 1px dashed rgba(20,18,16,0.25);
+  }
+  .case.c5 .case-kpi { border-top-color: rgba(244,239,227,0.2); }
+  .case-kpi div { min-width: 90px; }
+  .case-kpi .l {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase;
+    color: var(--mute); margin-bottom: 4px;
+  }
+  .case-kpi .n {
+    font-family: "Instrument Serif", serif;
+    font-size: 40px; line-height: 1;
+  }
+  .case-kpi .n.accent { color: var(--vermillion); }
+  .case-kpi .n .u {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 12px; margin-left: 4px; color: var(--mute);
+  }
+
+  .case-visual {
+    height: 140px; margin: -4px -8px 28px;
+    background: linear-gradient(135deg, rgba(200,54,30,0.08), rgba(166,139,91,0.08));
+    border: 1px solid rgba(20,18,16,0.1);
+    position: relative; overflow: hidden;
+  }
+  .case-visual svg { width: 100%; height: 100%; display: block; }
+
+  /* ─── PROCESS ──────────────────── */
+  .process {
+    padding: 120px 40px;
+    display: grid; grid-template-columns: 80px 1fr; gap: 40px;
+  }
+  .process-grid {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 0;
+    position: relative;
+  }
+  .step {
+    padding: 32px 24px 32px 0;
+    border-right: 1px dashed rgba(20,18,16,0.2);
+    position: relative;
+  }
+  .step:last-child { border-right: none; }
+  .step:not(:first-child) { padding-left: 28px; }
+  .step-no {
+    font-family: "Instrument Serif", serif;
+    font-style: italic;
+    font-size: 72px; line-height: 1;
+    color: var(--vermillion); margin-bottom: 14px;
+  }
+  .step-jp {
+    font-family: "Shippori Mincho B1", serif;
+    font-weight: 500; font-size: 22px; margin-bottom: 8px;
+  }
+  .step-en {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase;
+    color: var(--mute); margin-bottom: 18px;
+  }
+  .step p { font-size: 13.5px; color: var(--ink-2); line-height: 1.85; }
+
+  /* ─── PRICING ─────────────────── */
+  .pricing { background: var(--ink); color: var(--paper); }
+  .pricing .section-head { border-bottom-color: rgba(244,239,227,0.2); }
+  .pricing .section-title { color: var(--cream); }
+  .pricing .section-title em { color: rgba(244,239,227,0.55); }
+  .pricing .section-num b { color: var(--cream); }
+  .plans {
+    display: grid; grid-template-columns: 80px 1fr;
+    gap: 40px;
+  }
+  .plans-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 24px; }
+  .plan {
+    border: 1px solid rgba(244,239,227,0.2);
+    padding: 36px 30px;
+    position: relative;
+    transition: border-color .4s, transform .4s;
+  }
+  .plan:hover { border-color: var(--vermillion); transform: translateY(-4px); }
+  .plan.featured {
+    background: var(--vermillion);
+    border-color: var(--vermillion);
+  }
+  .plan.featured .plan-tag { background: var(--paper); color: var(--vermillion); }
+  .plan-tag {
+    position: absolute; top: -10px; left: 24px;
+    background: var(--paper); color: var(--ink);
+    font-family: "JetBrains Mono", monospace;
+    font-size: 9px; letter-spacing: 0.24em; text-transform: uppercase;
+    padding: 4px 10px;
+  }
+  .plan h5 {
+    font-family: "Shippori Mincho B1", serif;
+    font-size: 30px; font-weight: 700; margin-bottom: 4px;
+  }
+  .plan .plan-sub {
+    font-family: "Instrument Serif", serif; font-style: italic;
+    font-size: 14px; color: rgba(244,239,227,0.6);
+    margin-bottom: 24px;
+  }
+  .plan.featured .plan-sub { color: rgba(255,255,255,0.8); }
+  .plan-price {
+    font-family: "Instrument Serif", serif;
+    font-size: 54px; line-height: 1;
+    margin-bottom: 6px;
+  }
+  .plan-price .yen { font-size: 22px; vertical-align: top; margin-right: 3px; }
+  .plan-price .per {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11px; letter-spacing: 0.14em; color: rgba(244,239,227,0.55);
+    margin-left: 6px;
+  }
+  .plan.featured .plan-price .per { color: rgba(255,255,255,0.75); }
+  .plan ul {
+    list-style: none; margin-top: 28px; padding-top: 22px;
+    border-top: 1px solid rgba(244,239,227,0.15);
+  }
+  .plan.featured ul { border-top-color: rgba(255,255,255,0.3); }
+  .plan ul li {
+    font-size: 13.5px; line-height: 1.7; padding: 7px 0 7px 20px;
+    position: relative; color: rgba(244,239,227,0.85);
+  }
+  .plan.featured ul li { color: rgba(255,255,255,0.95); }
+  .plan ul li::before {
+    content: "✦"; position: absolute; left: 0; top: 7px;
+    color: var(--vermillion); font-size: 11px;
+  }
+  .plan.featured ul li::before { color: var(--paper); }
+
+  /* ─── ABOUT / AUTHOR ─────────────── */
+  .about-grid {
+    display: grid; grid-template-columns: 80px 1fr 1fr; gap: 40px;
+    align-items: start;
+  }
+  .about-left h3 {
+    font-family: "Shippori Mincho B1", serif;
+    font-size: 42px; font-weight: 500; line-height: 1.15;
+    margin-bottom: 24px;
+  }
+  .about-left h3 em {
+    font-family: "Instrument Serif", serif; font-style: italic;
+    color: var(--mute); display: block; font-size: 20px; margin-top: 8px;
+  }
+  .about-left p {
+    font-size: 15px; line-height: 2; color: var(--ink-2);
+    margin-bottom: 20px; max-width: 480px;
+  }
+  .author-card {
+    background: var(--cream);
+    border: 1px solid rgba(20,18,16,0.12);
+    padding: 32px;
+  }
+  .author-row { display: flex; gap: 24px; align-items: center; margin-bottom: 28px; }
+  .author-avatar {
+    width: 72px; height: 72px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--vermillion), #8a2512);
+    display: flex; align-items: center; justify-content: center;
+    font-family: "Shippori Mincho B1", serif; font-weight: 700;
+    color: var(--paper); font-size: 30px;
+    flex-shrink: 0;
+    position: relative;
+  }
+  .author-avatar::after {
+    content: ""; position: absolute; inset: -4px;
+    border: 1px solid var(--vermillion); border-radius: 50%; opacity: 0.3;
+  }
+  .author-name {
+    font-family: "Shippori Mincho B1", serif;
+    font-size: 22px; font-weight: 700; line-height: 1.2;
+  }
+  .author-name .en {
+    display: block;
+    font-family: "Instrument Serif", serif; font-style: italic;
+    color: var(--mute); font-size: 13px; margin-top: 4px;
+  }
+  .author-meta {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 20px 24px;
+    padding-top: 24px; border-top: 1px dashed rgba(20,18,16,0.2);
+  }
+  .author-meta .k {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 9px; letter-spacing: 0.22em; text-transform: uppercase;
+    color: var(--mute); margin-bottom: 4px;
+  }
+  .author-meta .v { font-size: 14px; color: var(--ink); }
+
+  /* ─── TESTIMONIAL ─────────────── */
+  .testimonial {
+    background: var(--paper-2);
+    border-top: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+    padding: 110px 40px;
+  }
+  .testimonial-inner {
+    display: grid; grid-template-columns: 80px 1fr; gap: 40px;
+  }
+  .testimonial blockquote {
+    font-family: "Shippori Mincho B1", serif;
+    font-size: clamp(28px, 3.6vw, 46px);
+    line-height: 1.5; letter-spacing: -0.005em;
+    color: var(--ink);
+    position: relative;
+    padding-left: 40px;
+    max-width: 1000px;
+  }
+  .testimonial blockquote::before {
+    content: "「"; position: absolute; left: -10px; top: -20px;
+    font-size: 120px; color: var(--vermillion); font-weight: 700;
+    line-height: 1; opacity: 0.9;
+  }
+  .testimonial blockquote::after {
+    content: "」"; position: absolute; right: -6px; bottom: -56px;
+    font-size: 120px; color: var(--vermillion); font-weight: 700;
+    line-height: 1; opacity: 0.9;
+  }
+  .testimonial cite {
+    display: block; margin-top: 40px;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase;
+    color: var(--mute); font-style: normal;
+  }
+  .testimonial cite b {
+    color: var(--ink); font-weight: 500;
+    font-family: "Shippori Mincho B1", serif; letter-spacing: 0;
+    text-transform: none; font-size: 15px; margin-right: 10px;
+  }
+
+  /* ─── CONTACT ───────────────── */
+  .contact {
+    padding: 140px 40px 80px;
+    display: grid; grid-template-columns: 80px 1fr; gap: 40px;
+  }
+  .contact-inner { max-width: 1100px; }
+  .contact h2 {
+    font-family: "Shippori Mincho B1", serif;
+    font-size: clamp(56px, 8vw, 128px);
+    line-height: 0.95; letter-spacing: -0.02em;
+    font-weight: 500;
+    margin-bottom: 30px;
+  }
+  .contact h2 em {
+    font-family: "Instrument Serif", serif; font-style: italic;
+    font-weight: 400;
+    display: block; font-size: 0.38em;
+    color: var(--mute); letter-spacing: 0;
+    margin-top: 14px;
+  }
+  .contact p.lead {
+    font-size: 17px; line-height: 1.95;
+    color: var(--ink-2); max-width: 620px;
+    margin-bottom: 50px;
+  }
+  .contact-channels {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 0;
+    border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule);
+  }
+  .ch {
+    padding: 32px 28px;
+    border-right: 1px solid rgba(20,18,16,0.18);
+    transition: background .4s;
+  }
+  .ch:last-child { border-right: none; }
+  .ch:hover { background: var(--cream); }
+  .ch-label {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase;
+    color: var(--mute); margin-bottom: 12px;
+  }
+  .ch-name {
+    font-family: "Shippori Mincho B1", serif;
+    font-size: 24px; font-weight: 500; margin-bottom: 8px;
+  }
+  .ch-name .en {
+    font-family: "Instrument Serif", serif; font-style: italic;
+    font-size: 13px; color: var(--mute); display: block; margin-top: 4px;
+  }
+  .ch a {
+    color: var(--vermillion); text-decoration: none;
+    font-family: "JetBrains Mono", monospace; font-size: 11px; letter-spacing: 0.1em;
+    display: inline-flex; align-items: center; gap: 6px;
+    margin-top: 14px;
+  }
+  .ch a::after { content: "→"; transition: transform .3s; }
+  .ch a:hover::after { transform: translateX(4px); }
+
+  /* ─── FOOTER ────────────── */
+  footer {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 60px 40px 40px;
+  }
+  .foot {
+    display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 40px;
+    padding-bottom: 40px; border-bottom: 1px solid rgba(244,239,227,0.15);
+  }
+  .foot .brand-big {
+    font-family: "Shippori Mincho B1", serif;
+    font-size: 34px; font-weight: 700; line-height: 1.1;
+  }
+  .foot .brand-big .accent { color: var(--vermillion); }
+  .foot .brand-big .en {
+    display: block;
+    font-family: "Instrument Serif", serif; font-style: italic;
+    font-size: 14px; font-weight: 400; color: rgba(244,239,227,0.55);
+    margin-top: 8px;
+  }
+  .foot h6 {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase;
+    color: rgba(244,239,227,0.6); margin-bottom: 16px;
+  }
+  .foot ul { list-style: none; }
+  .foot ul li { font-size: 13.5px; line-height: 2.1; color: rgba(244,239,227,0.85); }
+  .foot ul li a { color: inherit; text-decoration: none; transition: color .3s; }
+  .foot ul li a:hover { color: var(--vermillion); }
+  .foot-bottom {
+    padding-top: 24px;
+    display: flex; justify-content: space-between; align-items: center;
+    font-family: "JetBrains Mono", monospace; font-size: 10px;
+    letter-spacing: 0.22em; text-transform: uppercase;
+    color: rgba(244,239,227,0.5);
+  }
+  .foot-bottom .seal-sm {
+    color: var(--vermillion); border: 1px solid var(--vermillion);
+    padding: 6px 12px; font-family: "Shippori Mincho B1", serif;
+    letter-spacing: 0.1em; text-transform: none; font-size: 12px;
+  }
+
+  /* ─── ENTRANCE ANIMATION ───── */
+  .reveal { opacity: 0; transform: translateY(24px); transition: opacity 1.1s cubic-bezier(.2,.7,.2,1), transform 1.1s cubic-bezier(.2,.7,.2,1); }
+  .reveal.in { opacity: 1; transform: none; }
+
+  .hero-copy .eyebrow { animation: fade .9s .1s both; }
+  .hero-copy h1 { animation: fade 1.1s .25s both; }
+  .hero-lead { animation: fade 1.1s .45s both; }
+  .hero-ctas { animation: fade 1.1s .65s both; }
+  .hero-card { animation: fadeCard 1.3s .8s both; }
+  @keyframes fade { from { opacity: 0; transform: translateY(22px); } to { opacity: 1; transform: none; } }
+  @keyframes fadeCard { from { opacity: 0; transform: rotate(3deg) translateY(28px); } to { opacity: 1; transform: rotate(0.6deg) translateY(0); } }
+
+  /* ─── RESPONSIVE ───── */
+  @media (max-width: 1100px) {
+    .hero { grid-template-columns: 60px 1fr; }
+    .hero-card { grid-column: 1 / -1; margin-top: 20px; }
+    .side-index { display: none; }
+    .works-grid { grid-template-columns: repeat(6, 1fr); }
+    .case.c1, .case.c2, .case.c3, .case.c4, .case.c5 { grid-column: span 6; }
+    .process-grid { grid-template-columns: 1fr 1fr; }
+    .step { border-right: none; border-bottom: 1px dashed rgba(20,18,16,0.2); padding: 30px 0; }
+    .services-inner { grid-template-columns: 1fr; }
+    .plans-grid { grid-template-columns: 1fr; }
+    .about-grid { grid-template-columns: 1fr; }
+    .contact-channels { grid-template-columns: 1fr; }
+    .ch { border-right: none; border-bottom: 1px solid rgba(20,18,16,0.18); }
+    .foot { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 680px) {
+    nav { padding: 16px 22px; }
+    nav ul { display: none; }
+    section, .hero, .contact, .process { padding-left: 22px; padding-right: 22px; }
+    .services, .contact, .plans, .process { grid-template-columns: 1fr; }
+    .section-head { grid-template-columns: 1fr; gap: 16px; }
+    .author-meta { grid-template-columns: 1fr; }
+    footer { padding: 50px 22px 30px; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="#" class="brand"><span class="kanji">工房</span><i>Studio Kōbō</i></a>
+  <ul>
+    <li><a href="#services">仕事</a></li>
+    <li><a href="#works">実績</a></li>
+    <li><a href="#process">進め方</a></li>
+    <li><a href="#pricing">料金</a></li>
+  </ul>
+  <a href="#contact" class="cta">Request Estimate</a>
+</nav>
+
+<main>
+
+  <!-- ═══ HERO ═══════════════════════════════════════ -->
+  <section class="hero">
+    <aside class="side-index" aria-hidden="true">
+      <span>Est. 2022 — Nagoya</span>
+      <span>Specimen ✦ No. 07</span>
+    </aside>
+
+    <div class="hero-copy">
+      <div class="eyebrow"><span class="est">業務改善 工房</span><span>/  Craft for Small Teams</span></div>
+      <h1>
+        手仕事の丁寧さで、<br>
+        <span class="stamp">時間</span>を返す。
+        <span class="en">A workshop for small operations.<br>One craftsman, one process at a time.</span>
+      </h1>
+      <p class="hero-lead">
+        Python・Excel VBA・Power Automate を使って、<strong>毎日30分〜数時間の繰り返し作業</strong>を、依頼主の手元から静かに取り除きます。製造業のIT開発者として積み上げた経験を、個人・中小企業の現場に届けるための工房です。
+      </p>
+      <div class="hero-ctas">
+        <a href="#contact" class="btn-primary">無料ヒアリングを依頼</a>
+        <a href="#works" class="btn-ghost">View case studies</a>
+      </div>
+    </div>
+
+    <aside class="hero-card">
+      <div class="spec-title">2025年度 実績標本</div>
+      <div class="spec-sub">FY2025 — 12 cases, 9 clients, one pair of hands.</div>
+      <div class="spec-grid">
+        <div>
+          <div class="k">Avg. Time Saved</div>
+          <div class="v accent">14.2<span class="unit">h / 月</span></div>
+        </div>
+        <div>
+          <div class="k">Delivery Median</div>
+          <div class="v">9.5<span class="unit">日</span></div>
+        </div>
+        <div>
+          <div class="k">Repeat Rate</div>
+          <div class="v">78<span class="unit">%</span></div>
+        </div>
+        <div>
+          <div class="k">Rating ★</div>
+          <div class="v accent">4.92<span class="unit">/ 5</span></div>
+        </div>
+      </div>
+      <div class="spec-foot">
+        <span>Signed & shipped</span>
+        <div class="seal">巧</div>
+      </div>
+    </aside>
+  </section>
+
+  <!-- ═══ MARQUEE ═══ -->
+  <div class="marquee" aria-hidden="true">
+    <div class="marquee-track">
+      <span>Excel 自動化</span><span>Power Automate フロー構築</span><span>Python スクレイピング</span><span>請求書発行の一括化</span><span>勤怠集計の自動化</span><span>VBA リファクタリング</span><span>CSV × API 連携</span><span>PDF 一括生成</span>
+      <span>Excel 自動化</span><span>Power Automate フロー構築</span><span>Python スクレイピング</span><span>請求書発行の一括化</span><span>勤怠集計の自動化</span><span>VBA リファクタリング</span><span>CSV × API 連携</span><span>PDF 一括生成</span>
+    </div>
+  </div>
+
+  <!-- ═══ SERVICES ═══ -->
+  <section id="services" class="services">
+    <div></div>
+    <div>
+      <div class="section-head">
+        <div class="section-num">Chapter 01 <b>仕事</b></div>
+        <h2 class="section-title">三つの道具で、三つの問題を。<em>— The three tools, three problems.</em></h2>
+      </div>
+      <div class="services-inner">
+        <article class="svc">
+          <div class="svc-num">01 / 03 — Python</div>
+          <div class="svc-mark">零</div>
+          <h3>静かに動くスクリプト<span class="en">Quiet daemons, tidy data.</span></h3>
+          <p>毎朝のレポート作成、Webからの情報収集、複数ファイルの突合。人の目を奪っていた作業を、小さなスクリプトに静かに置き換えます。</p>
+          <div class="tools"><span>Python 3.12</span><span>pandas</span><span>requests</span><span>openpyxl</span></div>
+        </article>
+        <article class="svc">
+          <div class="svc-num">02 / 03 — VBA</div>
+          <div class="svc-mark">壱</div>
+          <h3>Excelの、その一歩先<span class="en">Beyond the spreadsheet.</span></h3>
+          <p>10年の社内ツール開発で培ったVBAで、業務に「しっくりくる」Excelを仕立てます。既存ファイルの改修・高速化・マクロの健全化まで。</p>
+          <div class="tools"><span>Excel VBA</span><span>Access</span><span>PowerQuery</span><span>ADO</span></div>
+        </article>
+        <article class="svc">
+          <div class="svc-num">03 / 03 — Power Automate</div>
+          <div class="svc-mark">弐</div>
+          <h3>業務と業務の、橋渡し<span class="en">Small bridges between apps.</span></h3>
+          <p>Outlook・Teams・SharePoint・kintone をつなぐワークフロー。面倒な「あっちのシステムからこっちへ」を、毎日・自動で、淡々と。</p>
+          <div class="tools"><span>Power Automate</span><span>Graph API</span><span>kintone</span><span>Teams</span></div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ WORKS ═══ -->
+  <section id="works" class="works">
+    <div class="section-head">
+      <div class="section-num">Chapter 02 <b>実績</b></div>
+      <h2 class="section-title">過ぎ去った、十二の時間。<em>— A year in case studies.</em></h2>
+    </div>
+    <div class="works-grid">
+
+      <article class="case c1">
+        <div class="case-kind"><span>Case ✦ 001</span><span class="tag">Python × 製造業</span></div>
+        <div class="case-visual" aria-hidden="true">
+          <svg viewBox="0 0 600 140" preserveAspectRatio="none">
+            <defs>
+              <linearGradient id="g1" x1="0" x2="1"><stop offset="0" stop-color="#c8361e" stop-opacity="0.15"/><stop offset="1" stop-color="#c8361e" stop-opacity="0"/></linearGradient>
+            </defs>
+            <path d="M0,120 L40,110 L80,115 L120,95 L160,100 L200,85 L240,88 L280,60 L320,68 L360,42 L400,38 L440,28 L480,22 L520,18 L560,12 L600,10 L600,140 L0,140 Z" fill="url(#g1)"/>
+            <path d="M0,120 L40,110 L80,115 L120,95 L160,100 L200,85 L240,88 L280,60 L320,68 L360,42 L400,38 L440,28 L480,22 L520,18 L560,12 L600,10" stroke="#c8361e" stroke-width="1.5" fill="none"/>
+            <line x1="0" y1="120" x2="600" y2="120" stroke="#141210" stroke-width="0.5" stroke-dasharray="2 4"/>
+          </svg>
+        </div>
+        <h4>毎朝4時間の受注データ整形を、<br>12分で終わらせる。</h4>
+        <p class="case-desc">工場の生産管理担当者が、CSV・Excel・基幹システムから集めていた受注データの突合作業。Pythonで夜間バッチ化し、朝イチで確認するだけの状態に。</p>
+        <div class="case-kpi">
+          <div><div class="l">Time Saved</div><div class="n accent">83<span class="u">h / 月</span></div></div>
+          <div><div class="l">Error Rate</div><div class="n">↓ 91<span class="u">%</span></div></div>
+          <div><div class="l">Delivery</div><div class="n">11<span class="u">日</span></div></div>
+        </div>
+      </article>
+
+      <article class="case c2">
+        <div class="case-kind"><span>Case ✦ 002</span><span class="tag">VBA × 個人事業主</span></div>
+        <div class="case-visual" aria-hidden="true">
+          <svg viewBox="0 0 300 140" preserveAspectRatio="none">
+            <g stroke="#141210" stroke-width="0.5" fill="none" opacity="0.2"><line x1="0" y1="35" x2="300" y2="35"/><line x1="0" y1="70" x2="300" y2="70"/><line x1="0" y1="105" x2="300" y2="105"/></g>
+            <g fill="#141210"><rect x="30" y="70" width="24" height="50"/><rect x="70" y="55" width="24" height="65"/><rect x="110" y="40" width="24" height="80"/><rect x="150" y="30" width="24" height="90"/></g>
+            <g fill="#c8361e"><rect x="194" y="95" width="24" height="25"/><rect x="234" y="100" width="24" height="20"/><rect x="274" y="108" width="18" height="12"/></g>
+            <text x="16" y="132" font-family="JetBrains Mono" font-size="7" fill="#6b6358">BEFORE</text>
+            <text x="210" y="132" font-family="JetBrains Mono" font-size="7" fill="#c8361e">AFTER</text>
+          </svg>
+        </div>
+        <h4>個人税理士の月次決算、<br>手入力ゼロへ。</h4>
+        <p class="case-desc">クライアント12社分の試算表をExcel VBAで一括生成。月末の「あと3日は帰れない」が解消。</p>
+        <div class="case-kpi">
+          <div><div class="l">Time Saved</div><div class="n accent">42<span class="u">h / 月</span></div></div>
+          <div><div class="l">Repeat</div><div class="n">6<span class="u">回契約</span></div></div>
+        </div>
+      </article>
+
+      <article class="case c3">
+        <div class="case-kind"><span>Case ✦ 003</span><span class="tag">Power Automate</span></div>
+        <h4>見積書のPDF化と送付、<br>全自動で。</h4>
+        <p class="case-desc">Teamsでのリクエストから、SharePointのテンプレ → PDF → Outlook送付までを一本のフローで。</p>
+        <div class="case-kpi">
+          <div><div class="l">手順</div><div class="n accent">11 → 1</div></div>
+          <div><div class="l">Delivery</div><div class="n">7<span class="u">日</span></div></div>
+        </div>
+      </article>
+
+      <article class="case c4">
+        <div class="case-kind"><span>Case ✦ 004</span><span class="tag">Python × Scraping</span></div>
+        <div class="case-visual" aria-hidden="true">
+          <svg viewBox="0 0 400 140" preserveAspectRatio="none">
+            <g fill="none" stroke="#141210" stroke-width="0.6">
+              <circle cx="60" cy="70" r="22"/><circle cx="160" cy="40" r="22"/><circle cx="160" cy="100" r="22"/><circle cx="260" cy="70" r="22"/><circle cx="360" cy="70" r="28" fill="#c8361e" stroke="#c8361e"/>
+              <line x1="82" y1="70" x2="138" y2="40"/><line x1="82" y1="70" x2="138" y2="100"/><line x1="182" y1="40" x2="238" y2="70"/><line x1="182" y1="100" x2="238" y2="70"/><line x1="282" y1="70" x2="332" y2="70"/>
+            </g>
+            <text x="360" y="74" font-family="Shippori Mincho B1" font-size="14" fill="#faf6ea" text-anchor="middle" font-weight="700">集</text>
+          </svg>
+        </div>
+        <h4>不動産仲介の物件情報、<br>毎朝200件を自動収集。</h4>
+        <p class="case-desc">競合サイトの公開物件を形を揃えて取得、Googleスプレッドシートに毎朝6時に届けるBOT。担当者は淹れたコーヒーと一緒に確認するだけ。</p>
+        <div class="case-kpi">
+          <div><div class="l">Daily</div><div class="n accent">200<span class="u">件</span></div></div>
+          <div><div class="l">Saved</div><div class="n">28<span class="u">h / 月</span></div></div>
+          <div><div class="l">Uptime</div><div class="n">99.4<span class="u">%</span></div></div>
+        </div>
+      </article>
+
+      <article class="case c5">
+        <div class="case-kind"><span>Case ✦ 005</span><span class="tag">kintone × PA</span></div>
+        <h4>現場の紙日報、<br>スマホ入力で終わる。</h4>
+        <p class="case-desc">紙→Excel転記を、kintone + Power Automateで一気通貫に。</p>
+        <div class="case-kpi">
+          <div><div class="l">User</div><div class="n accent">34<span class="u">名</span></div></div>
+          <div><div class="l">ROI</div><div class="n">3.2<span class="u">ヶ月</span></div></div>
+        </div>
+      </article>
+
+    </div>
+  </section>
+
+  <!-- ═══ TESTIMONIAL ═══ -->
+  <section class="testimonial">
+    <div class="testimonial-inner">
+      <div></div>
+      <div>
+        <blockquote>
+          言われた通りに作るだけじゃなくて、「こういう運用にしましょうか」と一緒に考えてくれた。納品のあとも、こちら側の都合で何度か手直しをお願いしたけど、嫌な顔ひとつせず。工房という名前が、しっくりくる人でした。
+        </blockquote>
+        <cite><b>— 佐藤 K.</b>　名古屋市・金属加工業 / 生産管理 / Case 001</cite>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ PROCESS ═══ -->
+  <section id="process" class="process">
+    <div></div>
+    <div>
+      <div class="section-head">
+        <div class="section-num">Chapter 03 <b>進め方</b></div>
+        <h2 class="section-title">四つの段取り、余計なことはしない。<em>— Four small steps, nothing more.</em></h2>
+      </div>
+      <div class="process-grid">
+        <div class="step">
+          <div class="step-no">i.</div>
+          <div class="step-jp">聞く</div>
+          <div class="step-en">01 — Listening</div>
+          <p>まず 30分 の無料ヒアリング。何を辞めたいのか、どこに時間が溶けているのかを、道具の話より先に。</p>
+        </div>
+        <div class="step">
+          <div class="step-no">ii.</div>
+          <div class="step-jp">見積る</div>
+          <div class="step-en">02 — Proposing</div>
+          <p>できること／できないこと／どのくらい時間を返せるか を、紙1枚のお見積りとしてお渡しします。</p>
+        </div>
+        <div class="step">
+          <div class="step-no">iii.</div>
+          <div class="step-jp">仕立てる</div>
+          <div class="step-en">03 — Crafting</div>
+          <p>最短1週間、平均10日。途中で一度、画面共有で「味見」をしてもらいながら仕上げていきます。</p>
+        </div>
+        <div class="step">
+          <div class="step-no">iv.</div>
+          <div class="step-jp">引き渡す</div>
+          <div class="step-en">04 — Handover</div>
+          <p>動画マニュアル付きでの納品。納品後30日の無償サポート、その後は月額の保守を希望制で。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ PRICING ═══ -->
+  <section id="pricing" class="pricing">
+    <div class="plans">
+      <div></div>
+      <div>
+        <div class="section-head">
+          <div class="section-num">Chapter 04 <b>料金</b></div>
+          <h2 class="section-title">三つの品書き。<em>— A short menu, honestly priced.</em></h2>
+        </div>
+        <div class="plans-grid">
+          <div class="plan">
+            <span class="plan-tag">小</span>
+            <h5>単発の一品</h5>
+            <div class="plan-sub">One small, finished thing.</div>
+            <div class="plan-price"><span class="yen">¥</span>30,000<span class="per">〜 / 一式</span></div>
+            <ul>
+              <li>Excelマクロ1本・スクリプト1本</li>
+              <li>納期 5〜7営業日</li>
+              <li>動画マニュアル 1本</li>
+              <li>30日の無償修正</li>
+            </ul>
+          </div>
+          <div class="plan featured">
+            <span class="plan-tag">人気</span>
+            <h5>定番の仕立て</h5>
+            <div class="plan-sub">Most requested, most balanced.</div>
+            <div class="plan-price"><span class="yen">¥</span>80,000<span class="per">〜 / 一式</span></div>
+            <ul>
+              <li>複数ファイル・複数システム連携</li>
+              <li>納期 10〜14営業日</li>
+              <li>動画マニュアル + 書面手順</li>
+              <li>60日の無償修正 + 運用ミーティング1回</li>
+              <li>要件整理〜仕様書の作成込み</li>
+            </ul>
+          </div>
+          <div class="plan">
+            <span class="plan-tag">定期</span>
+            <h5>月々の保守</h5>
+            <div class="plan-sub">Quiet, monthly maintenance.</div>
+            <div class="plan-price"><span class="yen">¥</span>15,000<span class="per">/ 月 〜</span></div>
+            <ul>
+              <li>軽微な改修 2件まで / 月</li>
+              <li>エラー対応・ログ監視</li>
+              <li>月次 15分の定例</li>
+              <li>いつでも解約可</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ ABOUT ═══ -->
+  <section id="about">
+    <div class="about-grid">
+      <div></div>
+      <div class="about-left">
+        <div class="section-num" style="margin-bottom:18px;">Chapter 05 <b>職人について</b></div>
+        <h3>平日は製造業の開発者、<br>夜と週末は、工房の職人。<em>— About the craftsman.</em></h3>
+        <p>本業は製造業の社内ツール開発。10年のあいだ、「現場で本当に使われる仕組み」だけを作り続けてきました。華やかなSaaSよりも、ひと部屋分の業務をそっと変える道具のほうが、自分には向いていると気づきました。</p>
+        <p>工房 Studio Kōbō は、その延長線上にある小さな副業です。納期を守ること、壊れないものを作ること、納品のあとも使ってもらえること。当たり前を、毎回ちゃんとやる。それだけを心がけています。</p>
+      </div>
+      <div class="author-card">
+        <div class="author-row">
+          <div class="author-avatar">巧</div>
+          <div>
+            <div class="author-name">市川 和希<span class="en">Kazuki Ichikawa — Proprietor</span></div>
+          </div>
+        </div>
+        <div class="author-meta">
+          <div><div class="k">Based in</div><div class="v">愛知県 名古屋市</div></div>
+          <div><div class="k">Since</div><div class="v">2022 年 / 本業 10 年目</div></div>
+          <div><div class="k">Tools</div><div class="v">Python / VBA / Power Automate</div></div>
+          <div><div class="k">Domains</div><div class="v">製造業・士業・小売・不動産</div></div>
+          <div><div class="k">Availability</div><div class="v">月 2〜3 件まで</div></div>
+          <div><div class="k">Certified</div><div class="v">基本情報技術者 / MOS</div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ CONTACT ═══ -->
+  <section id="contact" class="contact">
+    <div></div>
+    <div class="contact-inner">
+      <div class="section-num" style="margin-bottom:30px;">Chapter 06 <b>依頼</b></div>
+      <h2>
+        まずは 30 分、<br>
+        聞かせてください。<em>— A quiet 30 minute call, before anything else.</em>
+      </h2>
+      <p class="lead">
+        どの窓口でも、最初の返信は 24 時間以内に必ずお戻しします。「これって頼んでいいのかな」という相談だけでも歓迎です。現在、月 2〜3 件の枠で受付中です。
+      </p>
+      <div class="contact-channels">
+        <div class="ch">
+          <div class="ch-label">Primary ✦ 01</div>
+          <div class="ch-name">ココナラ<span class="en">Coconala — most requests</span></div>
+          <a href="#">出品ページへ</a>
+        </div>
+        <div class="ch">
+          <div class="ch-label">Secondary ✦ 02</div>
+          <div class="ch-name">クラウドワークス<span class="en">CrowdWorks — for mid-size jobs</span></div>
+          <a href="#">プロフィールへ</a>
+        </div>
+        <div class="ch">
+          <div class="ch-label">Direct ✦ 03</div>
+          <div class="ch-name">直接のご依頼<span class="en">Email — kazuki@kobo.studio</span></div>
+          <a href="mailto:ichikazu6031@gmail.com">メールを書く</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="foot">
+    <div>
+      <div class="brand-big"><span class="accent">工房</span> Studio Kōbō<span class="en">— Quiet craft for small operations.<br>Est. 2022 · Nagoya, Japan.</span></div>
+    </div>
+    <div>
+      <h6>Navigation</h6>
+      <ul>
+        <li><a href="#services">仕事について</a></li>
+        <li><a href="#works">実績</a></li>
+        <li><a href="#process">進め方</a></li>
+        <li><a href="#pricing">料金</a></li>
+        <li><a href="#contact">依頼する</a></li>
+      </ul>
+    </div>
+    <div>
+      <h6>Elsewhere</h6>
+      <ul>
+        <li><a href="#">X（旧Twitter）</a></li>
+        <li><a href="#">ココナラ</a></li>
+        <li><a href="#">クラウドワークス</a></li>
+        <li><a href="#">GitHub</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="foot-bottom">
+    <span>© 2026 Studio Kōbō — All works crafted by hand.</span>
+    <div class="seal-sm">✦ 巧 ✦ 一貫仕立て</div>
+  </div>
+</footer>
+
+<script>
+  // Scroll reveal — adds .in class when section enters viewport
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('in');
+        io.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.12 });
+
+  document.querySelectorAll('section, .case, .svc, .step, .plan, .ch').forEach(el => {
+    el.classList.add('reveal');
+    io.observe(el);
+  });
+
+  // Smooth scroll
+  document.querySelectorAll('a[href^="#"]').forEach(a => {
+    a.addEventListener('click', (ev) => {
+      const id = a.getAttribute('href');
+      if (id.length > 1) {
+        const t = document.querySelector(id);
+        if (t) { ev.preventDefault(); t.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+      }
+    });
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,1281 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>財務BIダッシュボード — Kōbō Finance BI / 製造業向け</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Fira+Sans:wght@300;400;500;600;700&family=Noto+Sans+JP:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --primary: #1E40AF;
+    --primary-600: #2348c1;
+    --primary-50: #eef3fd;
+    --secondary: #3B82F6;
+    --accent: #D97706;
+    --accent-50: #fef5e7;
+    --bg: #F4F6FB;
+    --surface: #FFFFFF;
+    --surface-2: #FAFBFE;
+    --border: #E2E8F0;
+    --border-2: #EEF2F7;
+    --text: #0F172A;
+    --text-2: #475569;
+    --text-3: #94A3B8;
+    --success: #059669;
+    --success-50: #ECFDF5;
+    --danger: #DC2626;
+    --danger-50: #FEF2F2;
+    --warning: #D97706;
+    --warning-50: #FFFBEB;
+    --grid: #EDF0F5;
+    --navy: #0B1F4A;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body {
+    font-family: "Fira Sans", "Noto Sans JP", sans-serif;
+    font-weight: 400;
+    font-size: 13px;
+    background: var(--bg);
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+    font-feature-settings: "tnum" on, "lnum" on;
+  }
+  .mono { font-family: "Fira Code", monospace; font-feature-settings: "tnum" on; }
+
+  button { font: inherit; cursor: pointer; background: none; border: none; color: inherit; }
+  a { color: inherit; text-decoration: none; }
+
+  /* ─── LAYOUT FRAME ─── */
+  .app {
+    display: grid;
+    grid-template-columns: 232px 1fr;
+    min-height: 100vh;
+  }
+
+  /* ─── SIDEBAR ─── */
+  .sidebar {
+    background: var(--navy);
+    color: #cdd6e8;
+    padding: 20px 16px;
+    position: sticky; top: 0; height: 100vh;
+    display: flex; flex-direction: column;
+    border-right: 1px solid rgba(255,255,255,0.06);
+  }
+  .brand {
+    display: flex; align-items: center; gap: 10px;
+    padding: 6px 8px 22px; margin-bottom: 10px;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+  .brand-logo {
+    width: 34px; height: 34px; border-radius: 8px;
+    background: linear-gradient(135deg, var(--secondary), var(--primary));
+    display: grid; place-items: center; color: #fff;
+    font-weight: 700; font-size: 14px;
+    box-shadow: 0 0 0 1px rgba(255,255,255,0.08), 0 8px 16px -8px rgba(59,130,246,0.5);
+  }
+  .brand-name { color: #fff; font-weight: 600; font-size: 14px; letter-spacing: 0.01em; }
+  .brand-sub { font-size: 10px; color: #8a95ad; letter-spacing: 0.06em; text-transform: uppercase; font-family: "Fira Code", monospace; margin-top: 2px; }
+
+  .nav-group { margin-top: 20px; }
+  .nav-label {
+    font-size: 10px; text-transform: uppercase; letter-spacing: 0.14em;
+    color: #6b7693; padding: 0 10px; margin-bottom: 8px;
+    font-family: "Fira Code", monospace;
+  }
+  .nav-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 10px; border-radius: 6px;
+    color: #cdd6e8; font-size: 13px; font-weight: 400;
+    margin-bottom: 2px; position: relative;
+    transition: background .18s, color .18s;
+  }
+  .nav-item:hover { background: rgba(255,255,255,0.04); color: #fff; }
+  .nav-item.active {
+    background: linear-gradient(90deg, rgba(59,130,246,0.16), rgba(59,130,246,0.04));
+    color: #fff; font-weight: 500;
+  }
+  .nav-item.active::before {
+    content: ""; position: absolute; left: -16px; top: 6px; bottom: 6px; width: 3px;
+    background: var(--secondary); border-radius: 0 3px 3px 0;
+  }
+  .nav-item .icon { width: 16px; height: 16px; flex-shrink: 0; }
+  .nav-item .badge {
+    margin-left: auto; font-size: 10px; padding: 1px 7px; border-radius: 10px;
+    background: var(--accent); color: #fff; font-family: "Fira Code", monospace;
+  }
+  .nav-item .badge.muted { background: rgba(255,255,255,0.1); color: #cdd6e8; }
+
+  .sidebar-footer {
+    margin-top: auto; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.06);
+  }
+  .user-card {
+    display: flex; align-items: center; gap: 10px; padding: 6px 8px;
+  }
+  .user-avatar {
+    width: 34px; height: 34px; border-radius: 50%;
+    background: linear-gradient(135deg, #f59e0b, #dc2626);
+    display: grid; place-items: center; color: #fff; font-weight: 600; font-size: 12px;
+  }
+  .user-name { color: #fff; font-size: 13px; font-weight: 500; }
+  .user-role { font-size: 10px; color: #8a95ad; font-family: "Fira Code", monospace; }
+
+  /* ─── MAIN ─── */
+  .main { display: flex; flex-direction: column; min-width: 0; }
+
+  /* TOPBAR */
+  .topbar {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 14px 24px;
+    display: flex; align-items: center; gap: 16px;
+    position: sticky; top: 0; z-index: 20;
+  }
+  .crumbs { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--text-3); }
+  .crumbs .sep { color: var(--text-3); }
+  .crumbs b { color: var(--text); font-weight: 500; }
+
+  .search {
+    flex: 1; max-width: 420px; margin-left: 24px;
+    display: flex; align-items: center; gap: 8px;
+    background: var(--bg); border: 1px solid var(--border);
+    border-radius: 8px; padding: 7px 12px;
+    transition: border .18s, background .18s;
+  }
+  .search:focus-within { border-color: var(--primary); background: #fff; box-shadow: 0 0 0 3px rgba(30,64,175,0.08); }
+  .search input {
+    border: none; outline: none; background: transparent;
+    flex: 1; font: inherit; color: var(--text);
+  }
+  .search input::placeholder { color: var(--text-3); }
+  .search .kbd {
+    font-family: "Fira Code", monospace; font-size: 10px;
+    padding: 2px 6px; background: #fff;
+    border: 1px solid var(--border); border-radius: 4px;
+    color: var(--text-2);
+  }
+
+  .topbar-actions { display: flex; align-items: center; gap: 8px; margin-left: auto; }
+  .icon-btn {
+    width: 34px; height: 34px; border-radius: 8px;
+    display: grid; place-items: center;
+    color: var(--text-2); position: relative;
+    transition: background .18s, color .18s;
+  }
+  .icon-btn:hover { background: var(--bg); color: var(--text); }
+  .icon-btn .dot {
+    position: absolute; top: 8px; right: 8px;
+    width: 7px; height: 7px; border-radius: 50%;
+    background: var(--danger); border: 2px solid var(--surface);
+  }
+  .topbar-sep { width: 1px; height: 22px; background: var(--border); margin: 0 4px; }
+
+  .period-picker {
+    display: flex; align-items: center; gap: 8px;
+    padding: 6px 12px; border-radius: 8px;
+    border: 1px solid var(--border); background: var(--surface);
+    font-size: 12px; color: var(--text);
+  }
+  .period-picker .mono { font-size: 12px; color: var(--primary); font-weight: 500; }
+
+  /* PAGE HEAD */
+  .page-head {
+    padding: 22px 24px 12px;
+    display: flex; align-items: flex-start; justify-content: space-between; gap: 20px;
+  }
+  .page-title h1 {
+    font-size: 22px; font-weight: 600; letter-spacing: -0.01em;
+    color: var(--text); margin-bottom: 6px;
+  }
+  .page-title .sub {
+    font-size: 12px; color: var(--text-2);
+    display: flex; align-items: center; gap: 10px;
+  }
+  .page-title .pill {
+    padding: 2px 8px; border-radius: 10px; background: var(--primary-50);
+    color: var(--primary); font-size: 11px; font-weight: 500;
+    font-family: "Fira Code", monospace;
+  }
+  .page-title .pill.live {
+    background: var(--success-50); color: var(--success);
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .page-title .pill.live::before {
+    content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--success);
+    box-shadow: 0 0 0 3px rgba(5,150,105,0.18);
+    animation: pulse 1.8s ease-in-out infinite;
+  }
+  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+  .page-actions { display: flex; align-items: center; gap: 8px; }
+  .btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 8px 14px; border-radius: 8px;
+    font-size: 12px; font-weight: 500;
+    border: 1px solid var(--border); background: var(--surface); color: var(--text);
+    transition: all .18s;
+  }
+  .btn:hover { background: var(--bg); }
+  .btn.primary { background: var(--primary); color: #fff; border-color: var(--primary); }
+  .btn.primary:hover { background: var(--primary-600); }
+  .btn.accent { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .btn.ghost { border-color: transparent; background: transparent; color: var(--text-2); }
+  .btn .icon { width: 14px; height: 14px; }
+
+  /* FILTER BAR */
+  .filter-bar {
+    padding: 8px 24px 16px;
+    display: flex; gap: 8px; flex-wrap: wrap; align-items: center;
+  }
+  .chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 5px 11px; border-radius: 999px;
+    font-size: 11px; font-weight: 500;
+    background: var(--surface); border: 1px solid var(--border); color: var(--text-2);
+    transition: all .18s;
+  }
+  .chip:hover { border-color: var(--primary); color: var(--primary); }
+  .chip.on { background: var(--primary-50); color: var(--primary); border-color: var(--primary); }
+  .chip .x { color: var(--text-3); font-size: 12px; }
+  .chip .x:hover { color: var(--danger); }
+  .filter-sep { width: 1px; height: 18px; background: var(--border); margin: 0 4px; }
+
+  /* ─── CONTENT GRID ─── */
+  .content { padding: 4px 24px 40px; }
+
+  /* KPI ROW */
+  .kpi-row {
+    display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px;
+    margin-bottom: 16px;
+  }
+  .kpi {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; padding: 14px 16px;
+    position: relative; overflow: hidden;
+    transition: border .18s, transform .2s, box-shadow .2s;
+  }
+  .kpi:hover { border-color: var(--border); transform: translateY(-1px); box-shadow: 0 6px 14px -10px rgba(15,23,42,0.18); }
+  .kpi::after {
+    content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 2px;
+    background: var(--primary); opacity: 0.8;
+  }
+  .kpi.accent::after { background: var(--accent); }
+  .kpi.success::after { background: var(--success); }
+  .kpi.danger::after { background: var(--danger); }
+
+  .kpi-label {
+    font-size: 10.5px; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--text-2); display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 10px; font-family: "Fira Code", monospace;
+  }
+  .kpi-label .mini-icon { width: 14px; height: 14px; color: var(--text-3); }
+  .kpi-value {
+    font-size: 22px; font-weight: 600; font-family: "Fira Code", monospace;
+    letter-spacing: -0.01em; color: var(--text); line-height: 1.1;
+    display: flex; align-items: baseline; gap: 4px;
+  }
+  .kpi-value .unit { font-size: 11px; color: var(--text-2); font-weight: 500; }
+  .kpi-delta {
+    display: inline-flex; align-items: center; gap: 4px;
+    margin-top: 8px; font-size: 11px; font-weight: 500; font-family: "Fira Code", monospace;
+  }
+  .kpi-delta.up { color: var(--success); }
+  .kpi-delta.down { color: var(--danger); }
+  .kpi-delta .arrow { font-size: 10px; }
+  .kpi-delta .compare { color: var(--text-3); font-weight: 400; margin-left: 4px; }
+  .kpi-spark {
+    position: absolute; right: 10px; bottom: 10px;
+    width: 72px; height: 28px; opacity: 0.9;
+  }
+
+  /* MAIN GRID */
+  .grid-main {
+    display: grid; grid-template-columns: 2fr 1fr; gap: 12px;
+    margin-bottom: 16px;
+  }
+  .card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; overflow: hidden;
+    display: flex; flex-direction: column;
+  }
+  .card-head {
+    padding: 14px 16px 10px;
+    display: flex; align-items: flex-start; justify-content: space-between; gap: 16px;
+    border-bottom: 1px solid var(--border-2);
+  }
+  .card-title {
+    font-size: 13px; font-weight: 600; color: var(--text); letter-spacing: 0.005em;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .card-title .count {
+    font-family: "Fira Code", monospace; font-size: 11px; font-weight: 500;
+    color: var(--text-2); background: var(--bg); padding: 1px 7px; border-radius: 10px;
+  }
+  .card-sub { font-size: 11px; color: var(--text-2); margin-top: 3px; }
+  .card-actions { display: flex; align-items: center; gap: 4px; }
+  .tabs {
+    display: flex; gap: 2px; background: var(--bg); padding: 3px; border-radius: 7px;
+  }
+  .tabs button {
+    padding: 4px 10px; border-radius: 5px; font-size: 11px; font-weight: 500; color: var(--text-2);
+    transition: all .18s;
+  }
+  .tabs button.on { background: var(--surface); color: var(--text); box-shadow: 0 1px 2px rgba(15,23,42,0.06); }
+  .card-body { padding: 14px 16px 16px; flex: 1; }
+
+  /* PL CHART */
+  .pl-chart { width: 100%; height: 280px; display: block; }
+  .chart-legend {
+    display: flex; gap: 18px; padding: 8px 16px 14px;
+    font-size: 11px; color: var(--text-2);
+    border-top: 1px solid var(--border-2);
+    background: var(--surface-2);
+  }
+  .chart-legend .lg { display: inline-flex; align-items: center; gap: 6px; }
+  .chart-legend .sw { width: 10px; height: 10px; border-radius: 2px; }
+  .chart-legend .sw.line { width: 14px; height: 2px; border-radius: 0; }
+
+  /* DONUT */
+  .donut-wrap {
+    display: grid; grid-template-columns: 148px 1fr; gap: 16px; align-items: center;
+    padding: 6px 0 4px;
+  }
+  .donut-center {
+    position: relative; width: 148px; height: 148px;
+  }
+  .donut-center .center {
+    position: absolute; inset: 0; display: grid; place-items: center;
+    text-align: center;
+  }
+  .donut-center .center .v {
+    font-family: "Fira Code", monospace; font-size: 20px; font-weight: 600; color: var(--text);
+  }
+  .donut-center .center .l {
+    font-size: 10px; color: var(--text-2); margin-top: 2px; letter-spacing: 0.05em;
+    text-transform: uppercase; font-family: "Fira Code", monospace;
+  }
+  .donut-legend { display: flex; flex-direction: column; gap: 10px; }
+  .donut-legend .item { display: flex; align-items: center; gap: 10px; font-size: 12px; }
+  .donut-legend .item .sw { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
+  .donut-legend .item .name { color: var(--text); flex: 1; }
+  .donut-legend .item .pct {
+    font-family: "Fira Code", monospace; color: var(--text-2); font-size: 11px;
+    margin-left: 6px; min-width: 42px; text-align: right;
+  }
+
+  /* SECONDARY ROW */
+  .grid-secondary {
+    display: grid; grid-template-columns: 1.2fr 1fr 1fr; gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  /* TABLE */
+  .table-wrap { overflow: auto; }
+  table.data {
+    width: 100%; border-collapse: separate; border-spacing: 0;
+    font-size: 12px;
+  }
+  table.data thead th {
+    background: var(--surface-2);
+    text-align: left; padding: 9px 12px;
+    font-size: 10.5px; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--text-2); font-weight: 500; font-family: "Fira Code", monospace;
+    border-bottom: 1px solid var(--border);
+    position: sticky; top: 0;
+  }
+  table.data thead th.right { text-align: right; }
+  table.data tbody tr { transition: background .15s; }
+  table.data tbody tr:hover { background: var(--primary-50); }
+  table.data tbody td {
+    padding: 10px 12px; border-bottom: 1px solid var(--border-2);
+    color: var(--text);
+  }
+  table.data tbody td.right { text-align: right; font-family: "Fira Code", monospace; }
+  table.data tbody tr:last-child td { border-bottom: none; }
+  .status-dot {
+    display: inline-flex; align-items: center; gap: 7px;
+  }
+  .status-dot::before {
+    content: ""; width: 6px; height: 6px; border-radius: 50%;
+  }
+  .status-dot.done::before { background: var(--success); }
+  .status-dot.wip::before { background: var(--warning); }
+  .status-dot.todo::before { background: var(--text-3); }
+  .status-dot.blocked::before { background: var(--danger); }
+  .tag {
+    display: inline-flex; padding: 2px 8px; border-radius: 10px;
+    font-family: "Fira Code", monospace; font-size: 10.5px; font-weight: 500;
+  }
+  .tag.auto { background: var(--primary-50); color: var(--primary); }
+  .tag.manual { background: var(--accent-50); color: var(--accent); }
+  .tag.sev-high { background: var(--danger-50); color: var(--danger); }
+  .tag.sev-med  { background: var(--warning-50); color: var(--warning); }
+  .tag.sev-low  { background: var(--success-50); color: var(--success); }
+
+  /* BUDGET VS ACTUAL */
+  .bva-list { display: flex; flex-direction: column; gap: 12px; }
+  .bva-item { font-size: 12px; }
+  .bva-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 6px; }
+  .bva-name { font-weight: 500; color: var(--text); }
+  .bva-values { font-family: "Fira Code", monospace; font-size: 11px; color: var(--text-2); }
+  .bva-values b { color: var(--text); font-weight: 500; }
+  .bva-bar {
+    position: relative; height: 8px; background: var(--border-2); border-radius: 999px; overflow: visible;
+  }
+  .bva-bar .actual {
+    position: absolute; left: 0; top: 0; bottom: 0;
+    background: var(--primary); border-radius: 999px;
+  }
+  .bva-bar .actual.over { background: var(--accent); }
+  .bva-bar .actual.under { background: var(--success); }
+  .bva-bar .target {
+    position: absolute; top: -3px; bottom: -3px; width: 2px; background: var(--text);
+    border-radius: 1px;
+  }
+  .bva-bar .target::after {
+    content: ""; position: absolute; left: -3px; top: -3px; width: 8px; height: 3px;
+    background: var(--text); border-radius: 1px;
+  }
+  .bva-delta {
+    font-family: "Fira Code", monospace; font-size: 11px; margin-top: 4px;
+  }
+  .bva-delta.up { color: var(--accent); }
+  .bva-delta.down { color: var(--success); }
+
+  /* CASH FLOW WATERFALL */
+  .waterfall { width: 100%; height: 230px; }
+
+  /* AR AGING */
+  .ar-bars { display: flex; flex-direction: column; gap: 10px; }
+  .ar-row { display: grid; grid-template-columns: 76px 1fr 96px; gap: 12px; align-items: center; font-size: 12px; }
+  .ar-label { color: var(--text-2); font-family: "Fira Code", monospace; font-size: 11px; }
+  .ar-track { height: 20px; background: var(--border-2); border-radius: 4px; overflow: hidden; position: relative; }
+  .ar-fill { height: 100%; border-radius: 4px; transition: width .6s cubic-bezier(.2,.7,.2,1); }
+  .ar-fill.ok { background: linear-gradient(90deg, var(--success), #10b981); }
+  .ar-fill.warn { background: linear-gradient(90deg, var(--warning), #f59e0b); }
+  .ar-fill.bad { background: linear-gradient(90deg, var(--danger), #ef4444); }
+  .ar-val { font-family: "Fira Code", monospace; font-size: 12px; color: var(--text); text-align: right; }
+
+  /* FX PANEL */
+  .fx-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+  }
+  .fx-item {
+    padding: 12px; background: var(--surface-2); border-radius: 8px; border: 1px solid var(--border-2);
+  }
+  .fx-name { font-size: 11px; color: var(--text-2); margin-bottom: 4px; font-family: "Fira Code", monospace; letter-spacing: 0.05em; }
+  .fx-rate { font-family: "Fira Code", monospace; font-size: 18px; font-weight: 600; color: var(--text); }
+  .fx-delta { font-size: 11px; margin-top: 4px; font-family: "Fira Code", monospace; }
+  .fx-delta.up { color: var(--danger); }
+  .fx-delta.down { color: var(--success); }
+
+  /* ACTIVITY LOG */
+  .log { font-size: 12px; display: flex; flex-direction: column; }
+  .log-item {
+    display: grid; grid-template-columns: 14px 1fr auto; gap: 10px;
+    padding: 10px 0; border-bottom: 1px solid var(--border-2);
+    align-items: flex-start;
+  }
+  .log-item:last-child { border-bottom: none; }
+  .log-dot {
+    width: 8px; height: 8px; border-radius: 50%; background: var(--primary); margin-top: 4px;
+    box-shadow: 0 0 0 3px var(--primary-50);
+  }
+  .log-dot.warn { background: var(--warning); box-shadow: 0 0 0 3px var(--warning-50); }
+  .log-dot.danger { background: var(--danger); box-shadow: 0 0 0 3px var(--danger-50); }
+  .log-text { color: var(--text); line-height: 1.5; }
+  .log-text b { color: var(--primary); font-weight: 500; }
+  .log-text .meta { color: var(--text-3); font-size: 11px; display: block; margin-top: 2px; font-family: "Fira Code", monospace; }
+  .log-time { font-family: "Fira Code", monospace; font-size: 10.5px; color: var(--text-3); white-space: nowrap; }
+
+  /* TOOLTIP */
+  .tooltip {
+    position: absolute; pointer-events: none; opacity: 0;
+    background: var(--navy); color: #fff; padding: 8px 10px;
+    border-radius: 6px; font-size: 11px;
+    font-family: "Fira Code", monospace;
+    box-shadow: 0 10px 24px -12px rgba(11,31,74,0.5);
+    transition: opacity .12s;
+    z-index: 50; white-space: nowrap;
+  }
+  .tooltip b { color: #fff; }
+  .tooltip .l { color: #8a95ad; }
+
+  /* SCROLLBAR */
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: #cdd6e8; border-radius: 10px; border: 2px solid var(--bg); }
+  ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+  /* Responsive */
+  @media (max-width: 1400px) {
+    .kpi-row { grid-template-columns: repeat(3, 1fr); }
+    .grid-secondary { grid-template-columns: 1fr 1fr; }
+  }
+  @media (max-width: 1024px) {
+    .app { grid-template-columns: 1fr; }
+    .sidebar { display: none; }
+    .grid-main { grid-template-columns: 1fr; }
+    .grid-secondary { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 640px) {
+    .kpi-row { grid-template-columns: 1fr 1fr; }
+    .topbar { padding: 12px 16px; flex-wrap: wrap; }
+    .search { max-width: 100%; margin-left: 0; order: 3; width: 100%; }
+    .page-head { padding: 16px; flex-direction: column; align-items: stretch; }
+    .filter-bar, .content { padding-left: 16px; padding-right: 16px; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- ═══ SIDEBAR ═══════════════════════════════════════ -->
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-logo">工</div>
+      <div>
+        <div class="brand-name">Kōbō Finance BI</div>
+        <div class="brand-sub">v2.14 · FY2026</div>
+      </div>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-label">財務分析</div>
+      <a class="nav-item active">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 3v18h18"/><path d="M7 14l4-4 4 4 5-5"/></svg>
+        <span>財務サマリー</span>
+      </a>
+      <a class="nav-item">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+        <span>損益分析 P/L</span>
+      </a>
+      <a class="nav-item">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 12c0 5-4 9-9 9-3 0-5.5-1.4-7.2-3.6M3 12c0-5 4-9 9-9 3 0 5.5 1.4 7.2 3.6"/><path d="M21 3v5h-5M3 21v-5h5"/></svg>
+        <span>キャッシュフロー</span>
+        <span class="badge muted">新</span>
+      </a>
+      <a class="nav-item">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 21h18M5 21V10l4-3 4 3v11M13 21v-7h4l3 2v5"/></svg>
+        <span>製造原価</span>
+      </a>
+      <a class="nav-item">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 12l6-9h6l6 9-9 9z"/></svg>
+        <span>予実管理</span>
+        <span class="badge">3</span>
+      </a>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-label">債権・債務</div>
+      <a class="nav-item">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 10h4M6 14h2"/></svg>
+        <span>売掛金管理</span>
+      </a>
+      <a class="nav-item">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 7H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2Z"/><path d="M16 3v4M8 3v4M2 11h20"/></svg>
+        <span>買掛金管理</span>
+      </a>
+      <a class="nav-item">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 3h18v6l-6 6 6 6H3l6-6-6-6z"/></svg>
+        <span>棚卸資産</span>
+      </a>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-label">決算</div>
+      <a class="nav-item">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+        <span>月次決算進捗</span>
+      </a>
+      <a class="nav-item">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M9 13h6M9 17h4"/></svg>
+        <span>レポート出力</span>
+      </a>
+    </div>
+
+    <div class="sidebar-footer">
+      <div class="nav-group" style="margin-top: 0;">
+        <a class="nav-item">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9c.3.6.9 1 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+          <span>設定</span>
+        </a>
+      </div>
+      <div class="user-card">
+        <div class="user-avatar">IK</div>
+        <div>
+          <div class="user-name">市川 和希</div>
+          <div class="user-role">経理部 / 管理職</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ═══ MAIN ═══════════════════════════════════════ -->
+  <main class="main">
+
+    <!-- TOPBAR -->
+    <div class="topbar">
+      <div class="crumbs">
+        <span>連結</span>
+        <span class="sep">/</span>
+        <span>財務分析</span>
+        <span class="sep">/</span>
+        <b>財務サマリー</b>
+      </div>
+
+      <div class="search">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+        <input type="text" placeholder="勘定科目・取引先・伝票番号で検索..." />
+        <span class="kbd">⌘K</span>
+      </div>
+
+      <div class="topbar-actions">
+        <div class="period-picker">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#64748B" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+          <span>2026年2月度</span>
+          <span class="mono">·</span>
+          <span class="mono">FY26/Q4</span>
+        </div>
+        <div class="topbar-sep"></div>
+        <button class="icon-btn" title="更新">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12c0 5-4 9-9 9-3 0-5.5-1.4-7.2-3.6"/><path d="M3 12c0-5 4-9 9-9 3 0 5.5 1.4 7.2 3.6"/><path d="M21 3v5h-5M3 21v-5h5"/></svg>
+        </button>
+        <button class="icon-btn" title="通知">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 16v-5a6 6 0 1 0-12 0v5l-2 2h16z"/><path d="M9 21a3 3 0 0 0 6 0"/></svg>
+          <span class="dot"></span>
+        </button>
+        <button class="icon-btn" title="ヘルプ">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- PAGE HEAD -->
+    <div class="page-head">
+      <div class="page-title">
+        <h1>財務サマリー — 2026年2月度</h1>
+        <div class="sub">
+          <span class="pill">連結ベース</span>
+          <span class="pill live">データ更新中</span>
+          <span class="mono" style="color: var(--text-3);">最終同期 2026-04-19 08:42 JST</span>
+        </div>
+      </div>
+      <div class="page-actions">
+        <button class="btn ghost">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12M6 9l6-6 6 6M5 21h14"/></svg>
+          共有
+        </button>
+        <button class="btn">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+          Excel出力
+        </button>
+        <button class="btn primary">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5v14"/></svg>
+          月次レポート作成
+        </button>
+      </div>
+    </div>
+
+    <!-- FILTERS -->
+    <div class="filter-bar">
+      <button class="chip on">会計期間 <span class="mono">FY26/Q4</span> <span class="x">✕</span></button>
+      <button class="chip on">連結 <span class="x">✕</span></button>
+      <button class="chip">事業セグメント <span class="mono">全3</span></button>
+      <button class="chip">地域 <span class="mono">JP · US · EU · ASEAN</span></button>
+      <button class="chip">通貨基準 <span class="mono">JPY</span></button>
+      <div class="filter-sep"></div>
+      <button class="chip">
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12h14M12 5v14"/></svg>
+        フィルタ追加
+      </button>
+      <button class="btn ghost" style="margin-left: auto; font-size: 11px;">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+        AI インサイト
+      </button>
+    </div>
+
+    <!-- CONTENT -->
+    <div class="content">
+
+      <!-- KPI ROW -->
+      <div class="kpi-row">
+        <div class="kpi">
+          <div class="kpi-label">売上高 <svg class="mini-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
+          <div class="kpi-value">¥4,287<span class="unit">百万</span></div>
+          <div class="kpi-delta up"><span class="arrow">▲</span>+8.2% <span class="compare">前年同月比</span></div>
+          <svg class="kpi-spark" viewBox="0 0 72 28" preserveAspectRatio="none">
+            <polyline points="0,20 10,18 20,22 30,14 40,16 50,10 60,12 72,6" fill="none" stroke="#1E40AF" stroke-width="1.5"/>
+          </svg>
+        </div>
+
+        <div class="kpi success">
+          <div class="kpi-label">売上総利益率 <svg class="mini-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 4 4 5-5"/></svg></div>
+          <div class="kpi-value">32.4<span class="unit">%</span></div>
+          <div class="kpi-delta up"><span class="arrow">▲</span>+1.2pt <span class="compare">前年</span></div>
+          <svg class="kpi-spark" viewBox="0 0 72 28" preserveAspectRatio="none">
+            <polyline points="0,22 10,20 20,18 30,14 40,12 50,10 60,8 72,4" fill="none" stroke="#059669" stroke-width="1.5"/>
+          </svg>
+        </div>
+
+        <div class="kpi">
+          <div class="kpi-label">営業利益 <svg class="mini-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg></div>
+          <div class="kpi-value">¥482<span class="unit">百万</span></div>
+          <div class="kpi-delta up"><span class="arrow">▲</span>+12.6% <span class="compare">前年</span></div>
+          <svg class="kpi-spark" viewBox="0 0 72 28" preserveAspectRatio="none">
+            <polyline points="0,22 10,24 20,20 30,18 40,14 50,16 60,10 72,8" fill="none" stroke="#1E40AF" stroke-width="1.5"/>
+          </svg>
+        </div>
+
+        <div class="kpi accent">
+          <div class="kpi-label">営業CF <svg class="mini-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12c0 5-4 9-9 9s-9-4-9-9 4-9 9-9"/><path d="m13 5 2-2 2 2M15 3v10"/></svg></div>
+          <div class="kpi-value">¥386<span class="unit">百万</span></div>
+          <div class="kpi-delta down"><span class="arrow">▼</span>-4.1% <span class="compare">予算対比</span></div>
+          <svg class="kpi-spark" viewBox="0 0 72 28" preserveAspectRatio="none">
+            <polyline points="0,10 10,14 20,12 30,16 40,18 50,14 60,20 72,22" fill="none" stroke="#D97706" stroke-width="1.5"/>
+          </svg>
+        </div>
+
+        <div class="kpi">
+          <div class="kpi-label">売掛金回転 <svg class="mini-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></div>
+          <div class="kpi-value">62.8<span class="unit">日</span></div>
+          <div class="kpi-delta up"><span class="arrow">▼</span>-2.4日 <span class="compare">前年</span></div>
+          <svg class="kpi-spark" viewBox="0 0 72 28" preserveAspectRatio="none">
+            <polyline points="0,8 10,10 20,12 30,14 40,14 50,16 60,18 72,18" fill="none" stroke="#059669" stroke-width="1.5"/>
+          </svg>
+        </div>
+
+        <div class="kpi danger">
+          <div class="kpi-label">棚卸資産回転 <svg class="mini-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3h18v6l-6 6 6 6H3l6-6-6-6z"/></svg></div>
+          <div class="kpi-value">48.6<span class="unit">日</span></div>
+          <div class="kpi-delta down"><span class="arrow">▲</span>+3.8日 <span class="compare">滞留要因あり</span></div>
+          <svg class="kpi-spark" viewBox="0 0 72 28" preserveAspectRatio="none">
+            <polyline points="0,18 10,16 20,14 30,12 40,14 50,10 60,8 72,4" fill="none" stroke="#DC2626" stroke-width="1.5"/>
+          </svg>
+        </div>
+      </div>
+
+      <!-- MAIN GRID : PL CHART + SEGMENT DONUT -->
+      <div class="grid-main">
+
+        <!-- PL TREND -->
+        <section class="card">
+          <div class="card-head">
+            <div>
+              <div class="card-title">月次PL推移 <span class="count">直近12ヶ月</span></div>
+              <div class="card-sub">売上・売上総利益・営業利益 / 連結ベース · 単位: 百万円</div>
+            </div>
+            <div class="card-actions">
+              <div class="tabs">
+                <button class="on">月次</button>
+                <button>四半期</button>
+                <button>半期</button>
+                <button>年次</button>
+              </div>
+            </div>
+          </div>
+          <div class="card-body" style="padding-top: 18px;">
+            <svg class="pl-chart" viewBox="0 0 720 280" preserveAspectRatio="none">
+              <defs>
+                <linearGradient id="plg1" x1="0" x2="0" y1="0" y2="1">
+                  <stop offset="0" stop-color="#1E40AF" stop-opacity="0.22"/>
+                  <stop offset="1" stop-color="#1E40AF" stop-opacity="0"/>
+                </linearGradient>
+                <linearGradient id="plg2" x1="0" x2="0" y1="0" y2="1">
+                  <stop offset="0" stop-color="#3B82F6" stop-opacity="0.18"/>
+                  <stop offset="1" stop-color="#3B82F6" stop-opacity="0"/>
+                </linearGradient>
+              </defs>
+              <!-- Grid -->
+              <g stroke="#EDF0F5" stroke-width="1">
+                <line x1="40" y1="40" x2="700" y2="40"/>
+                <line x1="40" y1="100" x2="700" y2="100"/>
+                <line x1="40" y1="160" x2="700" y2="160"/>
+                <line x1="40" y1="220" x2="700" y2="220"/>
+              </g>
+              <!-- Y labels -->
+              <g font-family="Fira Code" font-size="10" fill="#94A3B8" text-anchor="end">
+                <text x="34" y="44">5,000</text>
+                <text x="34" y="104">3,750</text>
+                <text x="34" y="164">2,500</text>
+                <text x="34" y="224">1,250</text>
+                <text x="34" y="256">0</text>
+              </g>
+              <!-- X labels -->
+              <g font-family="Fira Code" font-size="10" fill="#94A3B8" text-anchor="middle">
+                <text x="80" y="272">3月</text>
+                <text x="135" y="272">4月</text>
+                <text x="190" y="272">5月</text>
+                <text x="245" y="272">6月</text>
+                <text x="300" y="272">7月</text>
+                <text x="355" y="272">8月</text>
+                <text x="410" y="272">9月</text>
+                <text x="465" y="272">10月</text>
+                <text x="520" y="272">11月</text>
+                <text x="575" y="272">12月</text>
+                <text x="630" y="272">1月</text>
+                <text x="685" y="272" font-weight="600" fill="#1E40AF">2月</text>
+              </g>
+              <!-- Revenue area -->
+              <path d="M80,110 L135,100 L190,125 L245,90 L300,105 L355,85 L410,95 L465,70 L520,80 L575,60 L630,55 L685,45 L685,250 L80,250 Z" fill="url(#plg1)"/>
+              <!-- Revenue bars (subtle) -->
+              <g fill="#1E40AF" opacity="0.15">
+                <rect x="72" y="110" width="16" height="140"/>
+                <rect x="127" y="100" width="16" height="150"/>
+                <rect x="182" y="125" width="16" height="125"/>
+                <rect x="237" y="90" width="16" height="160"/>
+                <rect x="292" y="105" width="16" height="145"/>
+                <rect x="347" y="85" width="16" height="165"/>
+                <rect x="402" y="95" width="16" height="155"/>
+                <rect x="457" y="70" width="16" height="180"/>
+                <rect x="512" y="80" width="16" height="170"/>
+                <rect x="567" y="60" width="16" height="190"/>
+                <rect x="622" y="55" width="16" height="195"/>
+              </g>
+              <rect x="677" y="45" width="16" height="205" fill="#1E40AF" opacity="0.85"/>
+              <!-- Gross profit line -->
+              <path d="M80,175 L135,170 L190,185 L245,160 L300,175 L355,155 L410,165 L465,140 L520,150 L575,130 L630,125 L685,115" fill="none" stroke="#D97706" stroke-width="2"/>
+              <g fill="#D97706">
+                <circle cx="80" cy="175" r="3"/><circle cx="135" cy="170" r="3"/><circle cx="190" cy="185" r="3"/>
+                <circle cx="245" cy="160" r="3"/><circle cx="300" cy="175" r="3"/><circle cx="355" cy="155" r="3"/>
+                <circle cx="410" cy="165" r="3"/><circle cx="465" cy="140" r="3"/><circle cx="520" cy="150" r="3"/>
+                <circle cx="575" cy="130" r="3"/><circle cx="630" cy="125" r="3"/>
+                <circle cx="685" cy="115" r="4" stroke="#fff" stroke-width="2"/>
+              </g>
+              <!-- Operating profit line -->
+              <path d="M80,215 L135,212 L190,220 L245,205 L300,215 L355,200 L410,208 L465,195 L520,202 L575,188 L630,185 L685,178" fill="none" stroke="#059669" stroke-width="2" stroke-dasharray="4 3"/>
+              <g fill="#059669">
+                <circle cx="80" cy="215" r="2.5"/><circle cx="135" cy="212" r="2.5"/><circle cx="190" cy="220" r="2.5"/>
+                <circle cx="245" cy="205" r="2.5"/><circle cx="300" cy="215" r="2.5"/><circle cx="355" cy="200" r="2.5"/>
+                <circle cx="410" cy="208" r="2.5"/><circle cx="465" cy="195" r="2.5"/><circle cx="520" cy="202" r="2.5"/>
+                <circle cx="575" cy="188" r="2.5"/><circle cx="630" cy="185" r="2.5"/><circle cx="685" cy="178" r="3.5" stroke="#fff" stroke-width="2"/>
+              </g>
+              <!-- Highlight vertical on Feb -->
+              <line x1="685" y1="40" x2="685" y2="250" stroke="#1E40AF" stroke-width="1" stroke-dasharray="3 3" opacity="0.4"/>
+              <!-- Current month callout -->
+              <g transform="translate(600, 22)">
+                <rect x="0" y="0" width="96" height="26" rx="4" fill="#0B1F4A"/>
+                <text x="8" y="16" font-family="Fira Code" font-size="10" fill="#8a95ad">2月</text>
+                <text x="28" y="16" font-family="Fira Code" font-size="11" font-weight="600" fill="#fff">¥4,287M</text>
+              </g>
+            </svg>
+          </div>
+          <div class="chart-legend">
+            <span class="lg"><span class="sw" style="background:#1E40AF; opacity:0.6;"></span>売上高</span>
+            <span class="lg"><span class="sw line" style="background:#D97706;"></span>売上総利益</span>
+            <span class="lg"><span class="sw line" style="background:#059669;"></span>営業利益</span>
+            <span class="lg" style="margin-left:auto; color: var(--text-3);">更新: 08:42 · ソース: SAP ERP</span>
+          </div>
+        </section>
+
+        <!-- COST COMPOSITION DONUT -->
+        <section class="card">
+          <div class="card-head">
+            <div>
+              <div class="card-title">製造原価の構成</div>
+              <div class="card-sub">2026年2月度 / 原価内訳</div>
+            </div>
+            <div class="card-actions">
+              <button class="icon-btn" style="width:28px;height:28px;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+              </button>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="donut-wrap">
+              <div class="donut-center">
+                <svg viewBox="0 0 148 148" width="148" height="148">
+                  <!-- 材料費 52% -->
+                  <circle cx="74" cy="74" r="56" fill="none" stroke="#1E40AF" stroke-width="22"
+                          stroke-dasharray="182.8 351.7" stroke-dashoffset="0"
+                          transform="rotate(-90 74 74)"/>
+                  <!-- 労務費 26% -->
+                  <circle cx="74" cy="74" r="56" fill="none" stroke="#3B82F6" stroke-width="22"
+                          stroke-dasharray="91.4 351.7" stroke-dashoffset="-182.8"
+                          transform="rotate(-90 74 74)"/>
+                  <!-- 外注費 13% -->
+                  <circle cx="74" cy="74" r="56" fill="none" stroke="#D97706" stroke-width="22"
+                          stroke-dasharray="45.7 351.7" stroke-dashoffset="-274.2"
+                          transform="rotate(-90 74 74)"/>
+                  <!-- 経費 9% -->
+                  <circle cx="74" cy="74" r="56" fill="none" stroke="#94A3B8" stroke-width="22"
+                          stroke-dasharray="31.6 351.7" stroke-dashoffset="-319.9"
+                          transform="rotate(-90 74 74)"/>
+                </svg>
+                <div class="center">
+                  <div>
+                    <div class="v">¥2,898M</div>
+                    <div class="l">原価合計</div>
+                  </div>
+                </div>
+              </div>
+              <div class="donut-legend">
+                <div class="item"><span class="sw" style="background:#1E40AF;"></span><span class="name">材料費</span><span class="pct">52.0%</span></div>
+                <div class="item"><span class="sw" style="background:#3B82F6;"></span><span class="name">労務費</span><span class="pct">26.0%</span></div>
+                <div class="item"><span class="sw" style="background:#D97706;"></span><span class="name">外注加工費</span><span class="pct">13.0%</span></div>
+                <div class="item"><span class="sw" style="background:#94A3B8;"></span><span class="name">経費</span><span class="pct">9.0%</span></div>
+              </div>
+            </div>
+            <div style="margin-top: 18px; padding: 10px 12px; background: var(--warning-50); border-radius: 8px; border-left: 3px solid var(--warning); font-size: 11.5px; color: var(--text); line-height: 1.6;">
+              <b style="color: var(--warning); font-weight: 600;">⚠ 原価率注意</b> 材料費比率が前年比 <span class="mono" style="font-weight:600;">+3.2pt</span> 悪化。銅・アルミ市況と為替影響が主因。
+            </div>
+          </div>
+        </section>
+
+      </div>
+
+      <!-- SECONDARY ROW : CASHFLOW + BUDGET + AR AGING -->
+      <div class="grid-secondary">
+
+        <!-- CASHFLOW WATERFALL -->
+        <section class="card">
+          <div class="card-head">
+            <div>
+              <div class="card-title">キャッシュフロー ウォーターフォール</div>
+              <div class="card-sub">2026年2月度 / 単位: 百万円</div>
+            </div>
+            <div class="card-actions">
+              <div class="tabs"><button class="on">月次</button><button>累計</button></div>
+            </div>
+          </div>
+          <div class="card-body">
+            <svg class="waterfall" viewBox="0 0 520 230" preserveAspectRatio="none">
+              <g stroke="#EDF0F5"><line x1="30" y1="40" x2="500" y2="40"/><line x1="30" y1="95" x2="500" y2="95"/><line x1="30" y1="150" x2="500" y2="150"/></g>
+              <g font-family="Fira Code" font-size="9" fill="#94A3B8" text-anchor="end">
+                <text x="26" y="44">600</text><text x="26" y="99">400</text><text x="26" y="154">200</text><text x="26" y="184">0</text>
+              </g>
+              <!-- Opening cash -->
+              <rect x="40" y="80" width="56" height="100" fill="#94A3B8" rx="2"/>
+              <text x="68" y="196" font-family="Fira Sans" font-size="10" fill="#475569" text-anchor="middle">期首残高</text>
+              <text x="68" y="76" font-family="Fira Code" font-size="10" fill="#0F172A" text-anchor="middle" font-weight="600">¥412</text>
+              <!-- + Operating -->
+              <rect x="110" y="28" width="56" height="52" fill="#059669" rx="2"/>
+              <text x="138" y="196" font-family="Fira Sans" font-size="10" fill="#475569" text-anchor="middle">営業CF</text>
+              <text x="138" y="24" font-family="Fira Code" font-size="10" fill="#059669" text-anchor="middle" font-weight="600">+386</text>
+              <line x1="96" y1="80" x2="110" y2="80" stroke="#94A3B8" stroke-dasharray="2 2"/>
+              <!-- - Investing -->
+              <rect x="180" y="80" width="56" height="42" fill="#DC2626" rx="2"/>
+              <text x="208" y="196" font-family="Fira Sans" font-size="10" fill="#475569" text-anchor="middle">投資CF</text>
+              <text x="208" y="138" font-family="Fira Code" font-size="10" fill="#DC2626" text-anchor="middle" font-weight="600">-182</text>
+              <line x1="166" y1="28" x2="180" y2="28" stroke="#94A3B8" stroke-dasharray="2 2"/>
+              <!-- - Financing -->
+              <rect x="250" y="122" width="56" height="28" fill="#DC2626" rx="2"/>
+              <text x="278" y="196" font-family="Fira Sans" font-size="10" fill="#475569" text-anchor="middle">財務CF</text>
+              <text x="278" y="166" font-family="Fira Code" font-size="10" fill="#DC2626" text-anchor="middle" font-weight="600">-94</text>
+              <line x1="236" y1="122" x2="250" y2="122" stroke="#94A3B8" stroke-dasharray="2 2"/>
+              <!-- + Other -->
+              <rect x="320" y="110" width="56" height="12" fill="#059669" rx="2"/>
+              <text x="348" y="196" font-family="Fira Sans" font-size="10" fill="#475569" text-anchor="middle">為替差</text>
+              <text x="348" y="106" font-family="Fira Code" font-size="10" fill="#059669" text-anchor="middle" font-weight="600">+22</text>
+              <line x1="306" y1="150" x2="320" y2="150" stroke="#94A3B8" stroke-dasharray="2 2"/>
+              <!-- Closing -->
+              <rect x="400" y="70" width="56" height="110" fill="#1E40AF" rx="2"/>
+              <text x="428" y="196" font-family="Fira Sans" font-size="10" fill="#1E40AF" text-anchor="middle" font-weight="600">期末残高</text>
+              <text x="428" y="66" font-family="Fira Code" font-size="10" fill="#1E40AF" text-anchor="middle" font-weight="600">¥544</text>
+              <line x1="376" y1="110" x2="400" y2="110" stroke="#94A3B8" stroke-dasharray="2 2"/>
+            </svg>
+          </div>
+        </section>
+
+        <!-- BUDGET VS ACTUAL -->
+        <section class="card">
+          <div class="card-head">
+            <div>
+              <div class="card-title">予実管理 <span class="count">FY26/Q4</span></div>
+              <div class="card-sub">主要勘定科目 / 予算 vs 実績</div>
+            </div>
+            <div class="card-actions">
+              <button class="icon-btn" style="width:28px;height:28px;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M6 12h12M9 18h6"/></svg>
+              </button>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="bva-list">
+              <div class="bva-item">
+                <div class="bva-head">
+                  <div class="bva-name">売上高</div>
+                  <div class="bva-values">実績 <b>¥4,287M</b> / 予算 ¥4,100M</div>
+                </div>
+                <div class="bva-bar"><div class="actual" style="width: 92%; background: var(--success);"></div><div class="target" style="left: 88%;"></div></div>
+                <div class="bva-delta down">予算比 +4.6% · 達成率 <span style="font-weight:600;">104.6%</span></div>
+              </div>
+              <div class="bva-item">
+                <div class="bva-head">
+                  <div class="bva-name">売上原価</div>
+                  <div class="bva-values">実績 <b>¥2,898M</b> / 予算 ¥2,770M</div>
+                </div>
+                <div class="bva-bar"><div class="actual over" style="width: 82%;"></div><div class="target" style="left: 78%;"></div></div>
+                <div class="bva-delta up">予算比 +4.6% · <span style="color:var(--accent); font-weight:600;">超過 +128M</span></div>
+              </div>
+              <div class="bva-item">
+                <div class="bva-head">
+                  <div class="bva-name">販管費</div>
+                  <div class="bva-values">実績 <b>¥907M</b> / 予算 ¥920M</div>
+                </div>
+                <div class="bva-bar"><div class="actual under" style="width: 64%;"></div><div class="target" style="left: 66%;"></div></div>
+                <div class="bva-delta down">予算比 -1.4%</div>
+              </div>
+              <div class="bva-item">
+                <div class="bva-head">
+                  <div class="bva-name">営業利益</div>
+                  <div class="bva-values">実績 <b>¥482M</b> / 予算 ¥410M</div>
+                </div>
+                <div class="bva-bar"><div class="actual" style="width: 96%; background: var(--primary);"></div><div class="target" style="left: 82%;"></div></div>
+                <div class="bva-delta down">予算比 +17.6% · 達成率 <span style="font-weight:600;">117.6%</span></div>
+              </div>
+              <div class="bva-item">
+                <div class="bva-head">
+                  <div class="bva-name">研究開発費</div>
+                  <div class="bva-values">実績 <b>¥158M</b> / 予算 ¥180M</div>
+                </div>
+                <div class="bva-bar"><div class="actual under" style="width: 52%;"></div><div class="target" style="left: 60%;"></div></div>
+                <div class="bva-delta down">予算比 -12.2% · 要フォロー</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- AR AGING + FX -->
+        <section class="card">
+          <div class="card-head">
+            <div>
+              <div class="card-title">売掛金エイジング</div>
+              <div class="card-sub">2026年2月末時点 / 連結</div>
+            </div>
+            <div class="card-actions">
+              <button class="btn ghost" style="font-size:11px; padding: 4px 8px;">詳細</button>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="ar-bars">
+              <div class="ar-row">
+                <div class="ar-label">0-30日</div>
+                <div class="ar-track"><div class="ar-fill ok" style="width: 74%;"></div></div>
+                <div class="ar-val">¥1,842M</div>
+              </div>
+              <div class="ar-row">
+                <div class="ar-label">31-60日</div>
+                <div class="ar-track"><div class="ar-fill ok" style="width: 52%;"></div></div>
+                <div class="ar-val">¥1,296M</div>
+              </div>
+              <div class="ar-row">
+                <div class="ar-label">61-90日</div>
+                <div class="ar-track"><div class="ar-fill warn" style="width: 28%;"></div></div>
+                <div class="ar-val">¥702M</div>
+              </div>
+              <div class="ar-row">
+                <div class="ar-label">91-120日</div>
+                <div class="ar-track"><div class="ar-fill warn" style="width: 14%;"></div></div>
+                <div class="ar-val">¥352M</div>
+              </div>
+              <div class="ar-row">
+                <div class="ar-label">120日+</div>
+                <div class="ar-track"><div class="ar-fill bad" style="width: 6%;"></div></div>
+                <div class="ar-val">¥148M</div>
+              </div>
+            </div>
+
+            <div style="margin-top: 20px; padding-top: 14px; border-top: 1px solid var(--border-2);">
+              <div class="card-sub" style="font-size: 10.5px; font-family: 'Fira Code', monospace; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 12px; color: var(--text-2);">為替レート — BOJ 仲値</div>
+              <div class="fx-grid">
+                <div class="fx-item">
+                  <div class="fx-name">USD / JPY</div>
+                  <div class="fx-rate">148.72</div>
+                  <div class="fx-delta up">▲ +0.42 (+0.28%)</div>
+                </div>
+                <div class="fx-item">
+                  <div class="fx-name">EUR / JPY</div>
+                  <div class="fx-rate">162.18</div>
+                  <div class="fx-delta down">▼ -0.34 (-0.21%)</div>
+                </div>
+                <div class="fx-item">
+                  <div class="fx-name">CNY / JPY</div>
+                  <div class="fx-rate">20.68</div>
+                  <div class="fx-delta up">▲ +0.06 (+0.29%)</div>
+                </div>
+                <div class="fx-item">
+                  <div class="fx-name">THB / JPY</div>
+                  <div class="fx-rate">4.12</div>
+                  <div class="fx-delta down">▼ -0.02 (-0.48%)</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+      </div>
+
+      <!-- BOTTOM ROW : MONTH-CLOSE TABLE + ACTIVITY -->
+      <div class="grid-secondary" style="grid-template-columns: 1.6fr 1fr;">
+
+        <!-- MONTH CLOSE TABLE -->
+        <section class="card">
+          <div class="card-head">
+            <div>
+              <div class="card-title">月次決算進捗 <span class="count">2026年2月度</span></div>
+              <div class="card-sub">会計処理 / 締め作業 / 承認 · 完了率 <b style="color: var(--primary); font-family: 'Fira Code', monospace;">74%</b></div>
+            </div>
+            <div class="card-actions">
+              <button class="btn ghost" style="font-size:11px; padding: 6px 10px;">
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+                タスク追加
+              </button>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table class="data">
+              <thead>
+                <tr>
+                  <th>タスク</th>
+                  <th>担当</th>
+                  <th>種別</th>
+                  <th>期日</th>
+                  <th>進捗</th>
+                  <th class="right">重要度</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><span class="status-dot done">売上仕訳取込 (SAP→連結)</span></td>
+                  <td>佐藤</td>
+                  <td><span class="tag auto">自動化</span></td>
+                  <td class="right mono">02-28 18:00</td>
+                  <td><span style="color: var(--success);">完了</span></td>
+                  <td class="right"><span class="tag sev-low">低</span></td>
+                </tr>
+                <tr>
+                  <td><span class="status-dot done">棚卸資産評価 (月次ABC分析)</span></td>
+                  <td>田中</td>
+                  <td><span class="tag auto">自動化</span></td>
+                  <td class="right mono">03-02 12:00</td>
+                  <td><span style="color: var(--success);">完了</span></td>
+                  <td class="right"><span class="tag sev-med">中</span></td>
+                </tr>
+                <tr>
+                  <td><span class="status-dot wip">製造原価集計 (原価センタ12部門)</span></td>
+                  <td>市川</td>
+                  <td><span class="tag manual">手作業</span></td>
+                  <td class="right mono">03-05 17:00</td>
+                  <td><span style="color: var(--warning);">進行中 <span class="mono" style="margin-left: 4px;">62%</span></span></td>
+                  <td class="right"><span class="tag sev-high">高</span></td>
+                </tr>
+                <tr>
+                  <td><span class="status-dot wip">海外子会社PL取込 (US / EU / TH)</span></td>
+                  <td>山田</td>
+                  <td><span class="tag auto">自動化</span></td>
+                  <td class="right mono">03-06 10:00</td>
+                  <td><span style="color: var(--warning);">進行中 <span class="mono" style="margin-left: 4px;">40%</span></span></td>
+                  <td class="right"><span class="tag sev-high">高</span></td>
+                </tr>
+                <tr>
+                  <td><span class="status-dot blocked">連結仕訳チェック (内部取引消去)</span></td>
+                  <td>鈴木</td>
+                  <td><span class="tag manual">手作業</span></td>
+                  <td class="right mono">03-07 15:00</td>
+                  <td><span style="color: var(--danger);">ブロック中</span></td>
+                  <td class="right"><span class="tag sev-high">高</span></td>
+                </tr>
+                <tr>
+                  <td><span class="status-dot todo">税効果会計計算</span></td>
+                  <td>加藤</td>
+                  <td><span class="tag manual">手作業</span></td>
+                  <td class="right mono">03-08 17:00</td>
+                  <td><span style="color: var(--text-3);">未着手</span></td>
+                  <td class="right"><span class="tag sev-med">中</span></td>
+                </tr>
+                <tr>
+                  <td><span class="status-dot todo">取締役会向け財務報告書 作成</span></td>
+                  <td>市川</td>
+                  <td><span class="tag manual">手作業</span></td>
+                  <td class="right mono">03-10 12:00</td>
+                  <td><span style="color: var(--text-3);">未着手</span></td>
+                  <td class="right"><span class="tag sev-high">高</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- ACTIVITY LOG -->
+        <section class="card">
+          <div class="card-head">
+            <div>
+              <div class="card-title">異常検知・アクティビティ</div>
+              <div class="card-sub">直近24時間 / 自動監視</div>
+            </div>
+            <div class="card-actions">
+              <div class="tabs"><button class="on">すべて</button><button>警告のみ</button></div>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="log">
+              <div class="log-item">
+                <div class="log-dot danger"></div>
+                <div class="log-text">
+                  取引先 <b>AutoMech Industries</b> の入金遅延が <b style="color: var(--danger);">120日超</b> に拡大。与信限度見直しを推奨。
+                  <span class="meta">trigger: AR_AGING_RULE_v3 · amount: ¥78.2M</span>
+                </div>
+                <div class="log-time">08:42</div>
+              </div>
+              <div class="log-item">
+                <div class="log-dot warn"></div>
+                <div class="log-text">
+                  電子部品セグメントの <b>材料費率</b> が予算比 +3.2pt。<b style="color: var(--accent);">銅相場</b> 上昇が主因と推定。
+                  <span class="meta">trigger: COST_VARIANCE_BOM · segment: EC</span>
+                </div>
+                <div class="log-time">08:18</div>
+              </div>
+              <div class="log-item">
+                <div class="log-dot"></div>
+                <div class="log-text">
+                  <b>2月度の売上仕訳取込</b> を完了しました。SAP → 連結会計システムへ <b>2,481件</b> の仕訳を登録。
+                  <span class="meta">user: auto-bot · duration: 18m22s</span>
+                </div>
+                <div class="log-time">06:02</div>
+              </div>
+              <div class="log-item">
+                <div class="log-dot warn"></div>
+                <div class="log-text">
+                  タイ子会社 <b>Kōbō (Thailand) Ltd.</b> のPL取込で3件の例外。為替レート適用ルールの確認が必要。
+                  <span class="meta">trigger: FX_RULE_MISMATCH · asset_id: TH-0042</span>
+                </div>
+                <div class="log-time">前日 22:14</div>
+              </div>
+              <div class="log-item">
+                <div class="log-dot"></div>
+                <div class="log-text">
+                  <b>棚卸資産ABC分析</b> が更新されました。Aランク品目の <b>42%</b> が目標回転日数を下回る水準。
+                  <span class="meta">user: 田中 美咲 · report_id: INV-2026-02</span>
+                </div>
+                <div class="log-time">前日 17:30</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+      </div>
+
+    </div><!-- /content -->
+  </main>
+</div>
+
+<script>
+  // Minimal interactivity for chip / tab toggles
+  document.querySelectorAll('.chip').forEach(c => {
+    c.addEventListener('click', () => c.classList.toggle('on'));
+  });
+  document.querySelectorAll('.tabs').forEach(group => {
+    group.querySelectorAll('button').forEach(b => {
+      b.addEventListener('click', () => {
+        group.querySelectorAll('button').forEach(x => x.classList.remove('on'));
+        b.classList.add('on');
+      });
+    });
+  });
+</script>
+</body>
+</html>
